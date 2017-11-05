@@ -1,0 +1,9 @@
+# MacOS
+.DS_STORE
+
+datas/
+facebook-matken11235/
+messages/
+mecab_out.txt
+
+*.pyc
