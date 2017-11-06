@@ -7,3 +7,4 @@ messages/
 mecab_out.txt
 
 *.pyc
+.python-version
