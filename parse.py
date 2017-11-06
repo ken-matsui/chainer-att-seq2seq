@@ -1,6 +1,12 @@
 # coding:utf-8
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import os
+import codecs
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
@@ -14,7 +20,7 @@ def main():
 		os.mkdir(out_dir)
 
 	for file in tqdm(files):
-		html = open(in_dir + file, "r")
+		html = codecs.open(in_dir + file, "r", "utf-8")
 		soup = BeautifulSoup(html.read(), "html.parser")
 		html.close()
 
@@ -24,19 +30,19 @@ def main():
 		messages = soup.find_all("p")
 
 		# トーク相手名をファイル名にする
-		filename = partner.string.encode('utf-8').replace("スレッドの相手: ", "").replace(" ", "")
+		filename = partner.string.replace("スレッドの相手: ", "").replace(" ", "")
 
 		# ファイル作成
-		f = open(out_dir + filename + ".txt", "w")
+		f = codecs.open(out_dir + filename + ".txt", "w", "utf-8")
 		# 時系列の昇順に並べ換える
 		times.reverse()
 		users.reverse()
 		messages.reverse()
 		for time, user, msg in zip(times, users, messages):
 			if msg.string is not None:
-				f.write("time: " + time.string.encode('utf-8') + "\n")
-				f.write("user: " + user.string.encode('utf-8') + "\n")
-				f.write("msg: " + msg.string.encode('utf-8') + "\n")
+				f.write("time: " + time.string + "\n")
+				f.write("user: " + user.string + "\n")
+				f.write("msg: " + msg.string + "\n")
 				f.write("\n")
 		f.close()
 
