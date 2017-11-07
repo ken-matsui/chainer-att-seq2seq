@@ -20,8 +20,8 @@ def main():
 	msg.close()
 
 	# 1つ飛ばしでループして，交互になってるinput&outputを別ファイルへ分割
-	input = open(out_dir + "data_in.txt", "w")
-	output = open(out_dir + "data_out.txt", "w")
+	input = open(out_dir + "input.txt", "w")
+	output = open(out_dir + "output.txt", "w")
 	for i in tqdm(range(0, len(lines), 2)):
 		input.write(lines[i])
 		output.write(lines[i + 1])
