@@ -145,7 +145,7 @@ def create_model(session, forward_only):
     model.saver.restore(session, ckpt.model_checkpoint_path)
   else:
     print("Created model with fresh parameters.")
-    session.run(tf.initialize_all_variables())
+    session.run(tf.global_variables_initializer())
   return model
 
 
@@ -153,7 +153,7 @@ def train():
   en_train, fr_train, en_dev, fr_dev, en_vocab_path, fr_vocab_path = data_utils.prepare_my_data(
       FLAGS.data_dir, FLAGS.en_vocab_size, FLAGS.fr_vocab_size)
   _, rev_fr_vocab = data_utils.initialize_vocabulary(fr_vocab_path)
-  
+
 
   with tf.Session(config=config) as sess:
     # Create model.
@@ -220,7 +220,7 @@ def train():
           outputs = outputs[:outputs.index(data_utils.EOS_ID)]
         print("  trg = " + " ".join([tf.compat.as_str(rev_fr_vocab[input]) for input in inputs[1:]]))
         print("  hyp = " + " ".join([tf.compat.as_str(rev_fr_vocab[output]) for output in outputs]))
-        
+
         sys.stdout.flush()
 
 def orig_train():
@@ -230,7 +230,7 @@ def orig_train():
   en_train, fr_train, en_dev, fr_dev, en_vocab_path, fr_vocab_path = data_utils.prepare_wmt_data(
       FLAGS.data_dir, FLAGS.en_vocab_size, FLAGS.fr_vocab_size)
   _, rev_fr_vocab = data_utils.initialize_vocabulary(fr_vocab_path)
-  
+
 
   with tf.Session() as sess:
     # Create model.
@@ -298,7 +298,7 @@ def orig_train():
           outputs = outputs[:outputs.index(data_utils.EOS_ID)]
         print("  trg = " + " ".join([tf.compat.as_str(rev_fr_vocab[input]) for input in inputs]))
         print("  hyp = " + " ".join([tf.compat.as_str(rev_fr_vocab[output]) for output in outputs]))
-        
+
         # Run evals on development set and print their perplexity.
         for bucket_id in xrange(len(_buckets)):
           if len(dev_set[bucket_id]) == 0:
@@ -361,7 +361,7 @@ def self_test():
     # Create model with vocabularies of 10, 2 small buckets, 2 layers of 32.
     model = seq2seq_model.Seq2SeqModel(10, 10, [(3, 3), (6, 6)], 32, 2,
                                        5.0, 32, 0.3, 0.99, num_samples=8)
-    sess.run(tf.initialize_all_variables())
+    sess.run(tf.global_variables_initializer())
 
     # Fake data set for both the (3, 3) and (6, 6) bucket.
     data_set = ([([1, 1], [2, 2]), ([3, 3], [4]), ([5], [6])],

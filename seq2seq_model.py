@@ -25,7 +25,7 @@ import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 
-from tensorflow.models.rnn.translate import data_utils
+import data_utils
 
 
 class Seq2SeqModel(object):
@@ -100,13 +100,13 @@ class Seq2SeqModel(object):
       b = tf.get_variable("proj_b", [self.target_vocab_size], dtype=dtype)
       output_projection = (w, b)
 
-      def sampled_loss(labels, inputs):
+      def sampled_loss(labels, logits):
         labels = tf.reshape(labels, [-1, 1])
         # We need to compute the sampled_softmax_loss using 32bit floats to
         # avoid numerical instabilities.
         local_w_t = tf.cast(w_t, tf.float32)
         local_b = tf.cast(b, tf.float32)
-        local_inputs = tf.cast(inputs, tf.float32)
+        local_inputs = tf.cast(logits, tf.float32)
         return tf.cast(
             tf.nn.sampled_softmax_loss(local_w_t, local_b, labels, local_inputs,
                                        num_samples, self.target_vocab_size),
@@ -114,14 +114,14 @@ class Seq2SeqModel(object):
       softmax_loss_function = sampled_loss
 
     def single_cell():
-        cell = tf.contrib.rnn.core_rnn_cell.GRUCell(size, reuse = tf.get_variable_scope().reuse)
+        cell = tf.contrib.rnn.GRUCell(size, reuse = tf.get_variable_scope().reuse)
         if use_lstm:
-            cell = tf.contrib.rnn.core_rnn_cell.BasicLSTMCell(size, reuse = tf.get_variable_scope().reuse)
+            cell = tf.contrib.rnn.BasicLSTMCell(size, reuse = tf.get_variable_scope().reuse)
         return cell
 
     def cell():
         if num_layers > 1:
-            return tf.contrib.rnn.core_rnn_cell.MultiRNNCell([single_cell() for _ in range(num_layers)])
+            return tf.contrib.rnn.MultiRNNCell([single_cell() for _ in range(num_layers)])
         else:
             return single_cell()
 
@@ -196,7 +196,7 @@ class Seq2SeqModel(object):
         self.updates.append(opt.apply_gradients(
             zip(clipped_gradients, params), global_step=self.global_step))
 
-    self.saver = tf.train.Saver(tf.all_variables())
+    self.saver = tf.train.Saver(tf.global_variables())
 
   def step(self, session, encoder_inputs, decoder_inputs, target_weights,
            bucket_id, forward_only):
