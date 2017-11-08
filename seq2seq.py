@@ -11,20 +11,24 @@ import random
 import sys
 import time
 
+# import numpy as np
+# import tensorflow as tf
+# import tensorflow.python.platform
+# from tensorflow.contrib import rnn
+# from tensorflow.contrib import legacy_seq2seq
+# from sklearn import datasets
+# from sklearn.model_selection import train_test_split
+# from sklearn.utils import shuffle
+# import matplotlib.pyplot as plt
+# from tqdm import tqdm
+
 import numpy as np
 import tensorflow as tf
-import tensorflow.python.platform
-from tensorflow.contrib import rnn
-from tensorflow.contrib import legacy_seq2seq
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
-from sklearn.utils import shuffle
-import matplotlib.pyplot as plt
-from tqdm import tqdm
 
 import parse
 import mecab
-import split
+import data_utils
+import seq2seq_model
 
 # tf.app.flags.DEFINE_string('変数名', 'デフォルト値', """説明文""")
 # python script.py --'変数名' ok => tf.app.flags.FLAGS.'変数名' == 'ok'
@@ -47,14 +51,11 @@ def main(_):
 		parse.main()
 		print("mecab...")
 		mecab.main()
-		print("split...")
-		split.main()
 		print("seq2seq...")
 		seq2seq()
 	else:
 		print("skip parse")
 		print("skip mecab")
-		print("skip split")
 		print("seq2seq...")
 		seq2seq()
 
