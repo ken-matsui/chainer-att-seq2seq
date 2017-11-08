@@ -2,6 +2,8 @@
 .DS_STORE
 
 datas/
+train/translate*
+train/checkpoint
 facebook-matken11235/
 messages/
 mecab_out.txt
