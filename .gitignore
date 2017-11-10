@@ -1,12 +1,12 @@
 # MacOS
 .DS_STORE
 
-dataset/
-middle/
-train/translate*
-train/checkpoint
-raw_datas/facebook
-raw_datas/line/\[LINE\]\ Chat\ with\ *.txt
+dataset
+middle
+train/*
+raw/facebook
+raw/line/*
 
+!.gitkeep
 *.pyc
 .python-version
