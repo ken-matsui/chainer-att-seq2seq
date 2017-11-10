@@ -1,12 +1,12 @@
 # MacOS
 .DS_STORE
 
-datas/
+dataset/
+middle/
 train/translate*
 train/checkpoint
 raw_datas/facebook
 raw_datas/line/\[LINE\]\ Chat\ with\ *.txt
-messages/
 
 *.pyc
 .python-version
