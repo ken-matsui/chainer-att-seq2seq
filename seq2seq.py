@@ -12,7 +12,7 @@ import sys
 import time
 
 '''
-python seq2seq.py --data_dir datas --train_dir train \
+python seq2seq.py --data_dir dataset --train_dir train \
 --size 400 \
 --en_vocab_size 10000 \
 --fr_vocab_size 10000 \
@@ -20,7 +20,7 @@ python seq2seq.py --data_dir datas --train_dir train \
 --batch_size 5
 '''
 '''
-python seq2seq.py --data_dir datas --train_dir train \
+python seq2seq.py --data_dir dataset --train_dir train \
 --size 400 --en_vocab_size 10000 --fr_vocab_size 10000 --decode
 '''
 

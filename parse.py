@@ -13,9 +13,9 @@ from tqdm import tqdm
 
 def main():
 	# htmlファイルのリスト生成
-	fb_dir = "./raw_datas/facebook/messages/"
+	fb_dir = "./raw/facebook/messages/"
 	files = map(lambda s: fb_dir + s, os.listdir(fb_dir))
-	line_dir = "./raw_datas/line/"
+	line_dir = "./raw/line/"
 	files += map(lambda s: line_dir + s, os.listdir(line_dir))
 	# .gitkeepを排除
 	files.remove(line_dir + ".gitkeep")
