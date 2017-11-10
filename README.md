@@ -1,6 +1,6 @@
 # cloudace_linebot
 
-### HOW TO USE
+## HOW TO USE
 ```
 $ git clone $(This repository's URL)
 $ cd seq2seq/
