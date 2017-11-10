@@ -7,7 +7,6 @@ train/checkpoint
 raw_datas/facebook
 raw_datas/line/\[LINE\]\ Chat\ with\ *.txt
 messages/
-mecab_out.txt
 
 *.pyc
 .python-version
