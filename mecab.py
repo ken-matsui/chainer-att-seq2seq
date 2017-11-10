@@ -1,8 +1,8 @@
 # coding:utf-8
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+# from __future__ import absolute_import
+# from __future__ import division
+# from __future__ import print_function
 
 import os
 import re
@@ -17,7 +17,7 @@ def main():
 	in_dir = "./middle/"
 	files = os.listdir(in_dir)
 	# 出力ファイルのディレクトリ生成
-	out_dir = "./dataset/"
+	out_dir = "./data/"
 	if not os.path.exists(out_dir):
 		os.mkdir(out_dir)
 
