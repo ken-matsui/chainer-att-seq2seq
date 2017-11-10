@@ -6,8 +6,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
-import codecs
 import re
+import codecs
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
@@ -21,7 +21,7 @@ def main():
 	files.remove(line_dir + ".gitkeep")
 
 	# 出力ファイルのディレクトリ生成
-	out_dir = "./messages/"
+	out_dir = "./middle/"
 	if not os.path.exists(out_dir):
 		os.mkdir(out_dir)
 
@@ -29,6 +29,8 @@ def main():
 	re_fb = re.compile(r"%s" %fb_dir)
 	re_line = re.compile(r"%s" %line_dir)
 	re_time = re.compile(r"[0-9]?[0-9]:[0-9]?[0-9]")
+	# 返信の際に，スタンプなら[Sticker]に文字列変換して，seq2seqに渡せば返信可能になるかも．
+	re_ignore = re.compile(r"(\[Photo\]|\[Sticker\]|\[Video\]|\[Albums\]|\[File\])")
 	re_tab = re.compile(r"\t")
 	re_space = re.compile(r" ")
 
@@ -48,12 +50,13 @@ def main():
 				ext = ".fb"
 			elif re_line.match(file):
 				lines = f.readlines()
-				partner = lines[0].replace("[LINE] Chat history with ", "").strip()
+				partner = lines[0].replace("[LINE] Chat history with ", "").replace(" ", "").strip()
 				for line in lines[4:]: # 最初の４行は無視
 					if re_time.match(line):
 						line_list = re_tab.split(line)
-						users.append(line_list[1])
-						messages.append(line_list[2].strip())
+						if not re_ignore.match(line_list[2]):
+							users.append(line_list[1])
+							messages.append(line_list[2].strip().lstrip('"'))
 				ext = ".line"
 
 			# トーク相手名をファイル名にする
