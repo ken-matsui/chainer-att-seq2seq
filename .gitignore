@@ -1,7 +1,7 @@
 # MacOS
 .DS_STORE
 
-dataset
+data
 middle
 train/*
 raw/facebook
