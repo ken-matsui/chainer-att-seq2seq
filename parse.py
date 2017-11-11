@@ -32,7 +32,6 @@ def main():
 	# 返信の際に，スタンプなら[Sticker]に文字列変換して，seq2seqに渡せば返信可能になるかも．
 	re_ignore = re.compile(r"(\[Photo\]|\[Sticker\]|\[Video\]|\[Albums\]|\[File\])")
 	re_tab = re.compile(r"\t")
-	re_space = re.compile(r" ")
 
 	for file in tqdm(files):
 		with codecs.open(file, "r", "utf-8") as f:
