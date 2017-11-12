@@ -9,4 +9,5 @@ raw/line/*
 
 !.gitkeep
 *.pyc
+__pycache__
 .python-version
