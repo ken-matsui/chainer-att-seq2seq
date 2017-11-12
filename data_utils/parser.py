@@ -4,7 +4,6 @@ import os
 import re
 import codecs
 from bs4 import BeautifulSoup
-from tqdm import tqdm
 
 def main():
 	# htmlファイルのリスト生成
@@ -28,7 +27,7 @@ def main():
 	re_ignore = re.compile(r"(\[Photo\]|\[Sticker\]|\[Video\]|\[Albums\]|\[File\])")
 	re_tab = re.compile(r"\t")
 
-	for file in tqdm(files):
+	for file in files:
 		with codecs.open(file, "r", "utf-8") as f:
 			users = []
 			messages = []
@@ -61,6 +60,7 @@ def main():
 					f.write("msg: " + msg + "\n")
 					f.write("\n")
 			f.close()
+	print("done.")
 
 if __name__ == '__main__':
 	main()
