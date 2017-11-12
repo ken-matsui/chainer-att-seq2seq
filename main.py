@@ -1,9 +1,6 @@
 import datetime
 import numpy as np
-from chainer import Chain, Variable, cuda, optimizer, optimizers, serializers
-import chainer.functions as F
-import chainer.links as L
-import MeCab
+from chainer import cuda, optimizer, optimizers, serializers
 
 from att_seq2seq.model import AttSeq2Seq
 from data_utils.converter import DataConverter
@@ -79,7 +76,7 @@ for epoch in range(EPOCH_NUM):
 		total_loss += loss.data
 		opt.update()
 	output_path = "./train/{}_{}.network".format(epoch+1, total_loss)
-	serializers.save_npz(output_path, model)
+	serializers.save_npz(output_path, model) # モデルの保存
 	if (epoch+1)%10 == 0:
 		ed = datetime.datetime.now()
 		print("epoch:\t{}\ttotal loss:\t{}\ttime:\t{}".format(epoch+1, total_loss, ed-st))
