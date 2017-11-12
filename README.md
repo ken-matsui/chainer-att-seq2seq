@@ -4,6 +4,6 @@
 ```
 $ git clone $(This repository's URL)
 $ cd seq2seq/
-$ mv ~/Downloads/facebook-$(USER) ./raw_datas/facebook
-$ mv ~/Downloads/\[LINE\]\ Chat\ with\ *.txt ./raw_datas/line/
+$ mv ~/Downloads/facebook-$(USER) ./raw/facebook
+$ mv ~/Downloads/\[LINE\]\ Chat\ with\ *.txt ./raw/line/
 ```
