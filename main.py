@@ -1,8 +1,8 @@
-import datetime
 import numpy as np
-from chainer import cuda, optimizer, optimizers, serializers
+from chainer import cuda
 
 from att_seq2seq.model import AttSeq2Seq
+from att_seq2seq.trainer import Trainer
 from data_utils.converter import DataConverter
 
 # GPUのセット
@@ -32,7 +32,7 @@ data = list(map(lambda l: list(l), list(zip(inp, out))))
 # 	["野菜をたくさん取っていますか？", "毎日野菜を取るようにしています。"],
 # 	["週末は何をしていますか？", "友達と会っていることが多いです。"],
 # 	["どこに行くのが好き？", "私たちは渋谷に行くのが好きです。"]
-# ]
+# ] # sample data.
 
 # 定数
 EMBED_SIZE = 100
@@ -40,7 +40,7 @@ HIDDEN_SIZE = 100
 BATCH_SIZE = 6 # ミニバッチ学習のバッチサイズ数
 BATCH_COL_SIZE = 15
 EPOCH_NUM = 50 # エポック数
-N = len(data) # 教師データの数
+teacher_num = len(data) # 教師データの数
 
 # 教師データの読み込み
 data_converter = DataConverter(batch_col_size=BATCH_COL_SIZE) # データコンバーター
@@ -48,39 +48,19 @@ data_converter.load(data) # 教師データ読み込み
 vocab_size = len(data_converter.vocab) # 単語数
 
 # モデルの宣言
-model = AttSeq2Seq(vocab_size=vocab_size, embed_size=EMBED_SIZE, hidden_size=HIDDEN_SIZE, batch_col_size=BATCH_COL_SIZE)
-# ネットワークファイルの読み込み
-#network = "./att_seq2seq_network/*******************network"
-#serializers.load_npz(network, model)
-opt = optimizers.Adam()
-opt.setup(model)
-opt.add_hook(optimizer.GradientClipping(5))
-if FLAG_GPU:
-	model.to_gpu(0)
-model.reset()
-
+model = AttSeq2Seq(vocab_size=vocab_size,
+				   embed_size=EMBED_SIZE,
+				   hidden_size=HIDDEN_SIZE,
+				   batch_col_size=BATCH_COL_SIZE)
 # 学習開始
 print("Train")
-st = datetime.datetime.now()
-for epoch in range(EPOCH_NUM):
-	# ミニバッチ学習
-	perm = np.random.permutation(N) # ランダムな整数列リストを取得
-	total_loss = 0
-	for i in range(0, N, BATCH_SIZE):
-		enc_words = data_converter.train_queries[perm[i:i+BATCH_SIZE]]
-		dec_words = data_converter.train_responses[perm[i:i+BATCH_SIZE]]
-		model.reset()
-		loss = model(enc_words=enc_words, dec_words=dec_words, train=True)
-		loss.backward()
-		loss.unchain_backward()
-		total_loss += loss.data
-		opt.update()
-	output_path = "./train/{}_{}.network".format(epoch+1, total_loss)
-	serializers.save_npz(output_path, model) # モデルの保存
-	if (epoch+1)%10 == 0:
-		ed = datetime.datetime.now()
-		print("epoch:\t{}\ttotal loss:\t{}\ttime:\t{}".format(epoch+1, total_loss, ed-st))
-		st = datetime.datetime.now()
+trainer = Trainer(model)
+trainer.fit(queries=data_converter.train_queries,
+			responses=data_converter.train_responses,
+			teacher_num=teacher_num,
+			epoch_num=EPOCH_NUM,
+			batch_size=BATCH_SIZE)
+
 
 print("\nPredict")
 def predict(model, query):
@@ -89,7 +69,7 @@ def predict(model, query):
 	response = data_converter.ids2words(dec_response)
 	print(query, "=>", response)
 
-predict(model, "初めまして。")
+predict(model, "こんにちは")
 predict(model, "どこから来たんですか？")
 predict(model, "日本のどこに住んでるんですか？")
 predict(model, "仕事は何してますか？")
