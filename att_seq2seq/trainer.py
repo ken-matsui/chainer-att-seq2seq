@@ -4,25 +4,23 @@ import datetime
 from chainer import optimizer, optimizers, serializers
 import numpy as np
 
-# OUTPUT_PATH = './train/model/seq2seq/EMBED%s_HIDDEN%s_BATCH%s_EPOCH%s.npz'
-OUTPUT_PATH = './train/EMBED%s_HIDDEN%s_BATCH%s_EPOCH%s.npz'
 FLAG_GPU = False
 
-EMBED_SIZE = 300
-HIDDEN_SIZE = 150
 
 class Trainer(object):
 	def __init__(self, model):
 		self.model = model
 
-	def fit(self, queries, responses, teacher_num, epoch_num=30, batch_size=40, plotting=False):
+	def fit(self, queries, responses, teacher_num, epoch_num=30, batch_size=40):
 		# ネットワークファイルの読み込み
+		# TODO: ここどうする？？？
 		#network = "./att_seq2seq_network/*******************network"
 		#serializers.load_npz(network, self.model)
 
 		opt = optimizers.Adam()
 		opt.setup(self.model)
 		opt.add_hook(optimizer.GradientClipping(5))
+		# TODO: ここどうする？？？
 		# if FLAG_GPU:
 		# 	self.model.to_gpu(0)
 		self.model.reset()
