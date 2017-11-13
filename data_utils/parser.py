@@ -1,15 +1,9 @@
 # coding:utf-8
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import os
 import re
 import codecs
 from bs4 import BeautifulSoup
-from tqdm import tqdm
 
 def main():
 	# htmlファイルのリスト生成
@@ -32,9 +26,8 @@ def main():
 	# 返信の際に，スタンプなら[Sticker]に文字列変換して，seq2seqに渡せば返信可能になるかも．
 	re_ignore = re.compile(r"(\[Photo\]|\[Sticker\]|\[Video\]|\[Albums\]|\[File\])")
 	re_tab = re.compile(r"\t")
-	re_space = re.compile(r" ")
 
-	for file in tqdm(files):
+	for file in files:
 		with codecs.open(file, "r", "utf-8") as f:
 			users = []
 			messages = []
@@ -67,6 +60,7 @@ def main():
 					f.write("msg: " + msg + "\n")
 					f.write("\n")
 			f.close()
+	print("done.")
 
 if __name__ == '__main__':
 	main()
