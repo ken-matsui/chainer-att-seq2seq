@@ -1,7 +1,7 @@
 # MacOS
 .DS_STORE
 
-dataset
+data
 middle
 train/*
 raw/facebook
@@ -9,4 +9,5 @@ raw/line/*
 
 !.gitkeep
 *.pyc
+__pycache__
 .python-version

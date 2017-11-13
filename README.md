@@ -1,9 +1,26 @@
 # cloudace_linebot
 
-### HOW TO USE
+## HOW TO USE
 ```
 $ git clone $(This repository's URL)
 $ cd seq2seq/
-$ mv ~/Downloads/facebook-$(USER) ./raw_datas/facebook
-$ mv ~/Downloads/\[LINE\]\ Chat\ with\ *.txt ./raw_datas/line/
+$ mv ~/Downloads/facebook-$(USER) ./raw/facebook
+$ mv ~/Downloads/\[LINE\]\ Chat\ with\ *.txt ./raw/line/
+```
+
+### Input data.
+```
+         query data           answer data
+data = [["初めまして。", "初めまして。よろしくお願いします。"],
+		["どこから来たんですか？", "日本から来ました。"],
+		["日本のどこに住んでるんですか？", "東京に住んでいます。"],
+		["仕事は何してますか？", "私は会社員です。"],
+		["お会いできて嬉しかったです。", "私もです！"],
+		["おはよう。", "おはようございます。"],
+		["いつも何時に起きますか？", "6時に起きます。"],
+		["朝食は何を食べますか？", "たいていトーストと卵を食べます。"],
+		["朝食は毎日食べますか？", "たまに朝食を抜くことがあります。"],
+		["野菜をたくさん取っていますか？", "毎日野菜を取るようにしています。"],
+		["週末は何をしていますか？", "友達と会っていることが多いです。"],
+		["どこに行くのが好き？", "私たちは渋谷に行くのが好きです。"]] # sample data.
 ```
