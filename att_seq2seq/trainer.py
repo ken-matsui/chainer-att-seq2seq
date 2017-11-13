@@ -35,8 +35,9 @@ class Trainer(object):
 				loss.unchain_backward()
 				total_loss += loss.data
 				opt.update()
-			output_path = "./train/{}_{}.network".format(epoch+1, total_loss)
-			serializers.save_npz(output_path, self.model) # モデルの保存
+			if (epoch+1) % 10 == 0:
+				# モデルの保存
+				serializers.save_npz("./train/" + str(epoch+1) + ".npz", self.model)
 			# if (epoch+1)%10 == 0: # 1epochがでかいので，毎epochで表示
 			ed = datetime.datetime.now()
 			print("epoch:\t{}\ttotal loss:\t{}\ttime:\t{}".format(epoch+1, total_loss, ed-st))
