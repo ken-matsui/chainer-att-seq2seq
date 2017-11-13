@@ -3,14 +3,14 @@
 import chainer.functions as F
 import chainer.links as L
 from chainer import Chain, Variable, cuda
-import numpy as xp # xp これxpだとまずい
-# # GPUのセット # TODO: どこで行う？
-# FLAG_GPU = False # GPUを使用するかどうか
-# if FLAG_GPU: # numpyかcuda.cupyか
-# 	xp = cuda.cupy
-# 	cuda.get_device(0).use()
-# else:
-# 	xp = np
+import numpy as np
+
+FLAG_GPU = False
+if FLAG_GPU:
+	xp = cuda.cupy
+	cuda.get_device(0).use()
+else:
+	xp = np
 
 __all__ = ['AttSeq2Seq']
 

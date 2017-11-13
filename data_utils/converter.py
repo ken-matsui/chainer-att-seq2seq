@@ -1,5 +1,15 @@
-import numpy as xp # TODO: cupyにも対応する
+# coding: utf-8
+
+from chainer import cuda
+import numpy as np
 import MeCab
+
+FLAG_GPU = False
+if FLAG_GPU:
+	xp = cuda.cupy
+	cuda.get_device(0).use()
+else:
+	xp = np
 
 # データ変換クラスの定義
 class DataConverter:
