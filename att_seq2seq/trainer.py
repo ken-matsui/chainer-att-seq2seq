@@ -12,11 +12,6 @@ class Trainer(object):
 		self.model = model
 
 	def fit(self, queries, responses, teacher_num, epoch_num=30, batch_size=40):
-		# ネットワークファイルの読み込み
-		# TODO: ここどうする？？？
-		#network = "./att_seq2seq_network/*******************network"
-		#serializers.load_npz(network, self.model)
-
 		opt = optimizers.Adam()
 		opt.setup(self.model)
 		opt.add_hook(optimizer.GradientClipping(5))
