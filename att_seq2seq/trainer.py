@@ -6,7 +6,6 @@ import numpy as np
 
 FLAG_GPU = False
 
-
 class Trainer(object):
 	def __init__(self, model):
 		self.model = model
@@ -15,9 +14,8 @@ class Trainer(object):
 		opt = optimizers.Adam()
 		opt.setup(self.model)
 		opt.add_hook(optimizer.GradientClipping(5))
-		# TODO: ここどうする？？？
-		# if FLAG_GPU:
-		# 	self.model.to_gpu(0)
+		if FLAG_GPU:
+			self.model.to_gpu(0)
 		self.model.reset()
 
 		# 学習開始

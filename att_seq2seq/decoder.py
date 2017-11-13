@@ -4,7 +4,6 @@ class Decoder(object):
 	def __init__(self, model, data_converter, npz):
 		self.model = model
 		self.data_converter = data_converter
-		# ネットワークファイルの読み込み
 		serializers.load_npz(npz, self.model)
 
 	def __call__(self, query):
