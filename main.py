@@ -7,6 +7,7 @@ from chainer import cuda, serializers
 
 from att_seq2seq.model import AttSeq2Seq
 from att_seq2seq.trainer import Trainer
+from att_seq2seq.decoder import Decoder
 from data_utils.converter import DataConverter
 
 # TODO: 引数なににするの？？書かないと．
@@ -16,7 +17,7 @@ group.add_argument('-t', '--train', default=False, action='store_true', help='Tr
 group.add_argument('-d', '--decode', default=False, action='store_true', help='Decode mode if this flag is set (default: False)')
 parser.add_argument('-i', '--interact', default=False, action='store_true', help='Interact mode if this flag is set (default: False)')
 parser.add_argument('-g', '--gpu', default=False, action='store_true', help='GPU mode if this flag is set (default: False)')
-# parser.add_argument() # --decodeを指定した時だけ必須にしたい．かつ，stringを受け取りたい．
+# parser.add_argument() # TODO: --decodeを指定した時だけ必須にしたい．かつ，stringを受け取りたい．
 FLAGS = parser.parse_args()
 
 # TODO: 色々なところに散乱してるGPU系どうするの？？
@@ -41,7 +42,7 @@ def main():
 	DATA_PATH = './data/'
 	with open(DATA_PATH+'input.txt', 'r') as fin, open(DATA_PATH+'output.txt', 'r') as fout:
 		inp, out = fin.readlines(), fout.readlines()
-	data = list(map(lambda l: list(l), list(zip(inp, out))))
+	data = list(zip(inp, out))
 
 	teacher_num = len(data) # 教師データの数
 
@@ -64,27 +65,12 @@ def main():
 					teacher_num=teacher_num,
 					epoch_num=EPOCH_NUM,
 					batch_size=BATCH_SIZE)
-	elif FLAGS.decode:
-		# ネットワークファイルの読み込み
-		network = "./train/70.npz"
-		serializers.load_npz(network, model)
-		# Decode開始
+	elif FLAGS.decode: # TODO: decodeできるか確認！！！参照透過性を守った書き方にしたから，ちゃんと表示されるか確認
 		print("Predict")
-		def predict(model, query):
-			enc_query = data_converter.sentence2ids(query, train=False)
-			dec_response = model(enc_words=enc_query, train=False)
-			response = data_converter.ids2words(dec_response)
-			if "<eos>" in response:
-				for res in response[0:-1]: # 最後の<eos>を回避
-					print(res, end="")
-			else: # 含んでない時もある．(出力wordサイズが，15を超えた時？？？)
-				for res in response:
-					print(res, end="")
-			print()
-
+		decoder = Decoder(model, data_converter, "./train/10.npz")
 		while True:
 			query = input("> ")
-			predict(model, query)
+			print(decoder(query))
 
 if __name__ == '__main__':
 	main()
