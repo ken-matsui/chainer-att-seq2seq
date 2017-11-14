@@ -1,14 +1,21 @@
 # coding: utf-8
 
 import datetime
+import re
+
 from chainer import optimizer, optimizers, serializers
 import numpy as np
 
 FLAG_GPU = False
 
 class Trainer(object):
-	def __init__(self, model):
+	def __init__(self, model, npz=None):
 		self.model = model
+		if npz is not None:
+			serializers.load_npz(npz, self.model)
+			self.npz_num = int(re.search(r'[0-9]+', npz).group())
+		else:
+			self.npz_num = 0
 
 	def fit(self, queries, responses, teacher_num, epoch_num=30, batch_size=40):
 		opt = optimizers.Adam()
@@ -20,7 +27,7 @@ class Trainer(object):
 
 		# 学習開始
 		st = datetime.datetime.now()
-		for epoch in range(epoch_num):
+		for epoch in range(self.npz_num, epoch_num):
 			# ミニバッチ学習
 			perm = np.random.permutation(teacher_num) # ランダムな整数列リストを取得
 			total_loss = 0
