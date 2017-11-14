@@ -3,8 +3,6 @@
 import argparse
 import glob
 
-from chainer import serializers
-
 from att_seq2seq.model import AttSeq2Seq
 from att_seq2seq.trainer import Trainer
 from att_seq2seq.decoder import Decoder
