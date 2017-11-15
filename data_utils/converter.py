@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import os
+
 from chainer import cuda
 import numpy as np
 import MeCab
@@ -19,16 +21,22 @@ class DataConverter:
 		:param batch_col_size: 学習時のミニバッチ単語数サイズ
 		'''
 		self.mecab = MeCab.Tagger('-d /usr/local/Cellar/mecab-ipadic/2.7.0-20070801/lib/mecab/dic/ipadic') # 形態素解析器
+		self.vocab = {}
 		self.batch_col_size = batch_col_size
 
-	def load(self, data, path=None):
+	def load(self, path):
 		'''
 		学習時に、教師データを読み込んでミニバッチサイズに対応したNumpy配列に変換する
-		:param data: 対話データ
 		:param path: dataがあるディレクトリ
 		'''
+		# 対話データを取り出す
+		with open(path + 'query.txt', 'r') as fq, open(path + 'response.txt', 'r') as fr:
+			que, res = fq.readlines(), fr.readlines()
+		data = list(zip(que, res))
+		self.teacher_num = len(data)
+
 		# 単語辞書の登録
-		if path is not None: # 単語辞書ファイルからload
+		if os.path.isfile(path + 'vocab.txt'): # 単語辞書ファイルからload
 			with open(path + 'vocab.txt', 'r') as f:
 				lines = f.readlines()
 			for i, line in enumerate(lines):
