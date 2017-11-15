@@ -28,13 +28,8 @@ DATA_PATH = './data/'
 TRAIN_PATH = './train/'
 
 def main():
-	with open(DATA_PATH+'query.txt', 'r') as fq, open(DATA_PATH+'response.txt', 'r') as fr:
-		que, res = fq.readlines(), fr.readlines()
-	data = list(zip(que, res))
-	teacher_num = len(data)
-
-	data_converter = DataConverter(batch_col_size=BATCH_COL_SIZE)
-	data_converter.load(data)
+	data_converter = DataConverter(BATCH_COL_SIZE)
+	data_converter.load(DATA_PATH)
 	vocab_size = len(data_converter.vocab)
 
 	model = AttSeq2Seq(vocab_size=vocab_size,
@@ -55,7 +50,7 @@ def main():
 		trainer = Trainer(model, npz)
 		trainer.fit(queries=data_converter.train_queries,
 					responses=data_converter.train_responses,
-					teacher_num=teacher_num,
+					teacher_num=data_converter.teacher_num,
 					epoch_num=EPOCH_NUM,
 					batch_size=BATCH_SIZE)
 	elif FLAGS.decode:
