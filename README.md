@@ -10,7 +10,7 @@ $ mv ~/Downloads/\[LINE\]\ Chat\ with\ *.txt ./raw/line/
 
 ### Input data.
 ```
-data = [["query data", "answer data"],
-	["query data", "answer data"],
+data = [["query data", "responce data"],
+	["query data", "responce data"],
 	[..., ...], ...]
 ```
