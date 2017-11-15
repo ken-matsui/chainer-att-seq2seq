@@ -19,23 +19,34 @@ class DataConverter:
 		:param batch_col_size: 学習時のミニバッチ単語数サイズ
 		'''
 		self.mecab = MeCab.Tagger('-d /usr/local/Cellar/mecab-ipadic/2.7.0-20070801/lib/mecab/dic/ipadic') # 形態素解析器
-		self.vocab = {"<eos>": 0, "<unk>": 1} # 単語辞書
 		self.batch_col_size = batch_col_size
 
-	def load(self, data):
+	def load(self, data, path=None):
 		'''
 		学習時に、教師データを読み込んでミニバッチサイズに対応したNumpy配列に変換する
 		:param data: 対話データ
+		:param path: dataがあるディレクトリ
 		'''
 		# 単語辞書の登録
-		self.vocab = {"<eos>": 0, "<unk>": 1} # 単語辞書を初期化
-		for d in data:
-			sentences = [d[0], d[1]] # 入力文、返答文
-			for sentence in sentences:
-				sentence_words = self.sentence2words(sentence) # 文章を単語に分解する
-				for word in sentence_words:
-					if word not in self.vocab:
-						self.vocab[word] = len(self.vocab)
+		if path is not None: # 単語辞書ファイルからload
+			with open(path + 'vocab.txt', 'r') as f:
+				lines = f.readlines()
+			for i, line in enumerate(lines):
+				self.vocab[line.replace('\n', '')] = i
+		else: # query&responceファイルからload(単語辞書ファイルに書き出す．)
+			self.vocab = {"<eos>": 0, "<unk>": 1} # 単語辞書を初期化
+			for d in data:
+				sentences = [d[0], d[1]] # 入力文、返答文
+				for sentence in sentences:
+					sentence_words = self.sentence2words(sentence) # 文章を単語に分解する
+					for word in sentence_words:
+						if word not in self.vocab:
+							self.vocab[word] = len(self.vocab)
+			# 単語辞書ファイルに書き出す
+			with open('./data/' + 'vocab.txt', 'w') as f:
+				for key in self.vocab.keys():
+					f.write(key + '\n')
+
 		# 教師データのID化と整理
 		queries, responses = [], []
 		for d in data:
@@ -47,7 +58,7 @@ class DataConverter:
 
 	def sentence2words(self, sentence):
 		'''
-		文章を単語の配列にして返却する
+		文章を単語に分解する
 		:param sentence: 文章文字列
 		:return: 単語ごとに分割した配列
 		'''
@@ -73,7 +84,7 @@ class DataConverter:
 		for word in sentence_words:
 			if word in self.vocab: # 単語辞書に存在する単語ならば、IDに変換する
 				ids.append(self.vocab[word])
-			else: # 単語辞書に存在しない単語ならば、<unk>に変換する
+			else: # 単語辞書に存在しない単語ならば、<unk>のIDに変換する
 				ids.append(self.vocab["<unk>"])
 		# 学習時は、ミニバッチ対応のため、単語数サイズを調整してNumpy変換する
 		if train:
