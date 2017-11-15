@@ -14,15 +14,19 @@ else:
 # データ変換クラスの定義
 class DataConverter:
 	def __init__(self, batch_col_size):
-		# クラスの初期化
-		# :param batch_col_size: 学習時のミニバッチ単語数サイズ
+		'''
+		クラスの初期化
+		:param batch_col_size: 学習時のミニバッチ単語数サイズ
+		'''
 		self.mecab = MeCab.Tagger('-d /usr/local/Cellar/mecab-ipadic/2.7.0-20070801/lib/mecab/dic/ipadic') # 形態素解析器
 		self.vocab = {"<eos>": 0, "<unk>": 1} # 単語辞書
 		self.batch_col_size = batch_col_size
 
 	def load(self, data):
-		# 学習時に、教師データを読み込んでミニバッチサイズに対応したNumpy配列に変換する
-		# :param data: 対話データ
+		'''
+		学習時に、教師データを読み込んでミニバッチサイズに対応したNumpy配列に変換する
+		:param data: 対話データ
+		'''
 		# 単語辞書の登録
 		self.vocab = {"<eos>": 0, "<unk>": 1} # 単語辞書を初期化
 		for d in data:
@@ -42,8 +46,11 @@ class DataConverter:
 		self.train_responses = xp.vstack(responses)
 
 	def sentence2words(self, sentence):
-		# 文章を単語の配列にして返却する
-		# :param sentence: 文章文字列
+		'''
+		文章を単語の配列にして返却する
+		:param sentence: 文章文字列
+		:return: 単語ごとに分割した配列
+		'''
 		sentence_words = []
 		for m in self.mecab.parse(sentence).split("\n"): # 形態素解析で単語に分解する
 			w = m.split("\t")[0].lower() # 単語
@@ -54,11 +61,13 @@ class DataConverter:
 		return sentence_words
 
 	def sentence2ids(self, sentence, train=True, sentence_type="query"):
-		# 文章を単語IDのNumpy配列に変換して返却する
-		# :param sentence: 文章文字列
-		# :param train: 学習用かどうか
-		# :sentence_type: 学習用でミニバッチ対応のためのサイズ補填方向をクエリー・レスポンスで変更するため"query"or"response"を指定　
-		# :return: 単語IDのNumpy配列
+		'''
+		文章を単語IDのNumpy配列に変換して返却する
+		:param sentence: 文章文字列
+		:param train: 学習用かどうか
+		:sentence_type: 学習用でミニバッチ対応のためのサイズ補填方向をクエリー・レスポンスで変更するため"query"or"response"を指定　
+		:return: 単語IDのNumpy配列
+		'''
 		ids = [] # 単語IDに変換して格納する配列
 		sentence_words = self.sentence2words(sentence) # 文章を単語に分解する
 		for word in sentence_words:
@@ -81,9 +90,11 @@ class DataConverter:
 		return ids
 
 	def ids2words(self, ids):
-		# 予測時に、単語IDのNumpy配列を単語に変換して返却する
-		# :param ids: 単語IDのNumpy配列
-		# :return: 単語の配列
+		'''
+		予測時に、単語IDのNumpy配列を単語に変換して返却する
+		:param ids: 単語IDのNumpy配列
+		:return: 単語の配列
+		'''
 		words = [] # 単語を格納する配列
 		for i in ids: # 順番に単語IDを単語辞書から参照して単語に変換する
 			words.append(list(self.vocab.keys())[list(self.vocab.values()).index(i)])
