@@ -28,9 +28,9 @@ DATA_PATH = './data/'
 TRAIN_PATH = './train/'
 
 def main():
-	with open(DATA_PATH+'input.txt', 'r') as fin, open(DATA_PATH+'output.txt', 'r') as fout:
-		inp, out = fin.readlines(), fout.readlines()
-	data = list(zip(inp, out))
+	with open(DATA_PATH+'query.txt', 'r') as fq, open(DATA_PATH+'response.txt', 'r') as fr:
+		que, res = fq.readlines(), fr.readlines()
+	data = list(zip(que, res))
 	teacher_num = len(data)
 
 	data_converter = DataConverter(batch_col_size=BATCH_COL_SIZE)
