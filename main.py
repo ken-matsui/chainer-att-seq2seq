@@ -52,7 +52,7 @@ def main():
 					teacher_num=data_converter.teacher_num,
 					epoch_num=EPOCH_NUM,
 					batch_size=BATCH_SIZE,
-					gpu=FLAGS.gpu)
+					flag_gpu=FLAGS.gpu)
 	elif FLAGS.decode:
 		# 最新のモデルデータを使用する．
 		lst = glob.glob(TRAIN_PATH + "*.npz")
