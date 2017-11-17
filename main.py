@@ -12,7 +12,6 @@ parser = argparse.ArgumentParser(description='This script is seq2seq with chaine
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-t', '--train', default=False, action='store_true', help='Train mode if this flag is set')
 group.add_argument('-d', '--decode', default=False, action='store_true', help='Decode mode if this flag is set')
-parser.add_argument('-i', '--interact', default=False, action='store_true', help='Interact mode if this flag is set')
 parser.add_argument('-g', '--gpu', default=False, action='store_true', help='GPU mode if this flag is set')
 parser.add_argument('-r', '--resume', default=False, action='store_true', help='Resume mode if this flag is set')
 # parser.add_argument() # TODO: --decodeを指定した時だけ必須にしたい．かつ，stringを受け取りたい．
@@ -52,7 +51,8 @@ def main():
 					responses=data_converter.train_responses,
 					teacher_num=data_converter.teacher_num,
 					epoch_num=EPOCH_NUM,
-					batch_size=BATCH_SIZE)
+					batch_size=BATCH_SIZE,
+					gpu=FLAGS.gpu)
 	elif FLAGS.decode:
 		# 最新のモデルデータを使用する．
 		lst = glob.glob(TRAIN_PATH + "*.npz")
