@@ -19,8 +19,8 @@ def main():
 	ptrn_usr = re.compile(r"user: ")
 	ptrn_msg = re.compile(r"msg: ")
 
-	with open(out_dir + "query.txt", "w") as fin, open(out_dir + "response.txt", "w") as fout:
-		switch = True # True => fin, False => fout
+	with open(out_dir + "query.txt", "w") as fq, open(out_dir + "response.txt", "w") as fr:
+		switch = True # True => fq, False => fr
 		user = ""
 		for file in files:
 			with open(in_dir + file, "r") as msg:
@@ -33,12 +33,12 @@ def main():
 						user = line
 					elif user != line: # 前回userと違う
 						user = line
-						fin.write("\n") if switch else fout.write("\n")
+						fq.write("\n") if switch else fr.write("\n")
 						# input と outputを切り替え
 						switch = not(switch)
 				elif ptrn_msg.match(line):
 					text = line.replace("msg: ", "")
-					fin.write(text.strip()) if switch else fout.write(text.strip())
+					fq.write(text.strip()) if switch else fr.write(text.strip())
 	print("done.")
 
 if __name__ == '__main__':
