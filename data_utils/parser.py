@@ -2,15 +2,15 @@
 
 import os
 import re
-import codecs
+
 from bs4 import BeautifulSoup
 
 def main():
 	# htmlファイルのリスト生成
 	fb_dir = "./raw/facebook/messages/"
-	files = map(lambda s: fb_dir + s, os.listdir(fb_dir))
+	files = list(map(lambda s: fb_dir + s, os.listdir(fb_dir)))
 	line_dir = "./raw/line/"
-	files += map(lambda s: line_dir + s, os.listdir(line_dir))
+	files += list(map(lambda s: line_dir + s, os.listdir(line_dir)))
 	# .gitkeepを排除
 	files.remove(line_dir + ".gitkeep")
 
@@ -28,17 +28,17 @@ def main():
 	re_tab = re.compile(r"\t")
 
 	for file in files:
-		with codecs.open(file, "r", "utf-8") as f:
+		with open(file, "r") as f:
 			users = []
 			messages = []
 			if re_fb.match(file):
 				soup = BeautifulSoup(f.read(), "html.parser")
 				partner = soup.find("title").string.replace("スレッドの相手: ", "").replace(" ", "")
 				users = soup.find_all("span", class_="user")
-				users = map(lambda s: s.string, users)
+				users = list(map(lambda s: s.string, users))
 				users.reverse()
 				messages = soup.find_all("p")
-				messages = map(lambda s: s.string, messages)
+				messages = list(map(lambda s: s.string, messages))
 				messages.reverse()
 				ext = ".fb"
 			elif re_line.match(file):
@@ -53,7 +53,7 @@ def main():
 				ext = ".line"
 
 			# トーク相手名をファイル名にする
-			f = codecs.open(out_dir + partner + ext, "w", "utf-8")
+			f = open(out_dir + partner + ext, "w")
 			for user, msg in zip(users, messages):
 				if msg is not None:
 					f.write("user: " + user + "\n")
