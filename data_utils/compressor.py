@@ -19,7 +19,7 @@ def main():
 	ptrn_usr = re.compile(r"user: ")
 	ptrn_msg = re.compile(r"msg: ")
 
-	with open(out_dir + "input.txt", "w") as fin, open(out_dir + "output.txt", "w") as fout:
+	with open(out_dir + "query.txt", "w") as fin, open(out_dir + "response.txt", "w") as fout:
 		switch = True # True => fin, False => fout
 		user = ""
 		for file in files:
@@ -39,7 +39,6 @@ def main():
 				elif ptrn_msg.match(line):
 					text = line.replace("msg: ", "")
 					fin.write(text.strip()) if switch else fout.write(text.strip())
-
 	print("done.")
 
 if __name__ == '__main__':
