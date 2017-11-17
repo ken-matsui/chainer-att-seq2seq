@@ -6,8 +6,6 @@ import re
 from chainer import optimizer, optimizers, serializers
 import numpy as np
 
-FLAG_GPU = False
-
 class Trainer(object):
 	def __init__(self, model, npz=None):
 		self.model = model
@@ -17,11 +15,11 @@ class Trainer(object):
 		else:
 			self.npz_num = 0
 
-	def fit(self, queries, responses, teacher_num, epoch_num=30, batch_size=40):
+	def fit(self, queries, responses, teacher_num, epoch_num=30, batch_size=40, flag_gpu=False):
 		opt = optimizers.Adam()
 		opt.setup(self.model)
 		opt.add_hook(optimizer.GradientClipping(5))
-		if FLAG_GPU:
+		if flag_gpu:
 			self.model.to_gpu(0)
 		self.model.reset()
 
@@ -42,6 +40,8 @@ class Trainer(object):
 				opt.update()
 			if (epoch+1) % 10 == 0:
 				# モデルの保存
+				if flag_gpu: # modelをCPUでも使えるように
+					self.model.to_cpu()
 				serializers.save_npz("./train/" + str(epoch+1) + ".npz", self.model)
 			# if (epoch+1)%10 == 0: # 1epochがでかいので，毎epochで表示
 			ed = datetime.datetime.now()
