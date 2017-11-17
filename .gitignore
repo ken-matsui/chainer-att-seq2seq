@@ -2,10 +2,10 @@
 .DS_STORE
 
 data
-middle
 train/*
 raw/facebook
 raw/line/*
+raw/corpus/*
 
 !.gitkeep
 *.pyc
