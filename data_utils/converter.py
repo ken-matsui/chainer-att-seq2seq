@@ -49,8 +49,7 @@ class DataConverter:
 		# 単語辞書データを取り出す
 		with open(path + 'vocab.txt', 'r') as f:
 			lines = f.readlines()
-		for line in lines:
-			self.vocab.append(line.replace("\n", ""))
+		self.vocab = list(map(lambda s: s.replace("\n", ""), lines))
 
 	def batch_ids(self, ids):
 		if len(ids) > self.batch_col_size: # ミニバッチ単語サイズになるように先頭から削る
