@@ -46,8 +46,7 @@ def parse_sentence(sentence, vocab):
 		if word not in vocab:
 			vocab.append(word)
 
-	sentence = "".join(word_list)
-
+	# sentenceはstop wordsがかかった文だとまずいのでそのまま返す
 	return sentence, vocab
 
 def find_data(soup, tag, class_=None):
@@ -64,8 +63,8 @@ def write2file(usrs, msgs, que_file, res_file, vocab_file):
 	if len(msgs) % 2 != 0:
 		del msgs[-1:]
 
+	switch = True
 	before_usr = ""
-	switch = True # True => fq, False => fr
 	vocab = ["<eos>", "<unk>"]
 	with open(que_file, "a") as fq, open(res_file, "a") as fr:
 		for usr, msg in zip(usrs, msgs):
@@ -78,6 +77,7 @@ def write2file(usrs, msgs, que_file, res_file, vocab_file):
 					switch = not(switch)
 
 	# 単語辞書の生成
+	# 配列のindexがID
 	with open(vocab_file, 'w') as f:
 		for v in vocab:
 			f.write(v + '\n')
