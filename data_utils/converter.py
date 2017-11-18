@@ -21,7 +21,8 @@ class DataConverter:
 		:param batch_col_size: 学習時のミニバッチ単語数サイズ
 		'''
 		self.mecab = MeCab.Tagger('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
-		self.vocab = {}
+		# 単語辞書は，配列の添字をIDとして使う
+		self.vocab = []
 		self.batch_col_size = batch_col_size
 
 	def load(self, path):
@@ -38,8 +39,9 @@ class DataConverter:
 		# 単語辞書データを取り出す
 		with open(path + 'vocab.txt', 'r') as f:
 			lines = f.readlines()
-		for i, line in enumerate(lines):
-			self.vocab[line.replace('\n', '')] = i
+		for line in lines:
+			if line: # 空行を弾く
+				self.vocab.append(line.replace("\n", ""))
 
 		# 教師データのID化と整理
 		queries, responses = [], []
@@ -77,9 +79,9 @@ class DataConverter:
 		sentence_words = self.sentence2words(sentence) # 文章を単語に分解する
 		for word in sentence_words:
 			if word in self.vocab: # 単語辞書に存在する単語ならば、IDに変換する
-				ids.append(self.vocab[word])
+				ids.append(self.vocab.index(word))
 			else: # 単語辞書に存在しない単語ならば、<unk>のIDに変換する
-				ids.append(self.vocab["<unk>"])
+				ids.append(self.vocab.index("<unk>"))
 		# 学習時は、ミニバッチ対応のため、単語数サイズを調整してNumpy変換する
 		if train:
 			if sentence_type == "query": # クエリーの場合は前方にミニバッチ単語数サイズになるまで-1を補填する
@@ -102,5 +104,5 @@ class DataConverter:
 		'''
 		words = [] # 単語を格納する配列
 		for i in ids: # 順番に単語IDを単語辞書から参照して単語に変換する
-			words.append(list(self.vocab.keys())[list(self.vocab.values()).index(i)])
+			words.append(vocab[i])
 		return words
