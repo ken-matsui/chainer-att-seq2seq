@@ -20,7 +20,7 @@ class DataConverter:
 		クラスの初期化
 		:param batch_col_size: 学習時のミニバッチ単語数サイズ
 		'''
-		self.mecab = MeCab.Tagger('-d /usr/local/Cellar/mecab-ipadic/2.7.0-20070801/lib/mecab/dic/ipadic') # 形態素解析器
+		self.mecab = MeCab.Tagger('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd') # 形態素解析器
 		self.vocab = {}
 		self.batch_col_size = batch_col_size
 

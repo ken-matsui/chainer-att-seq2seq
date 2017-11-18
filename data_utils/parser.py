@@ -8,11 +8,18 @@ from bs4 import BeautifulSoup
 RE_TIME = re.compile(r"[0-9]?[0-9]:[0-9]?[0-9]")
 RE_TAB = re.compile(r"\t")
 RE_IGNORE = re.compile(r"(\[Photo\]|\[Sticker\]|\[Video\]|\[Albums\]|\[File\]|☎)")
+RE_URL = re.compile(r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+\$,%#]+)")
+
+def stop_words(word):
+	# URLの排除
+	word = RE_URL.sub("", word)
+	return word
 
 def find_data(soup, tag, class_=None):
 	datas = soup.find_all(tag, class_=class_)
 	datas = list(map(lambda s: s.string, datas))
-	datas.reverse() # 時間での昇順にする
+	# 時間での昇順にする
+	datas.reverse()
 	return datas
 
 def write2file(usrs, msgs, que_file, res_file):
@@ -28,6 +35,8 @@ def write2file(usrs, msgs, que_file, res_file):
 		for usr, msg in zip(usrs, msgs):
 			# 同一人物の連続した発話は除外 && 空行も除外
 			if (before_usr != usr) and (msg is not None) and (msg is not '\n'):
+				# stop wordsによる無駄な文字の排除
+				msg = stop_words(msg)
 				msg = msg.replace("\n", "") + "\n"
 				fq.write(msg) if switch else fr.write(msg)
 				before_usr = usr
