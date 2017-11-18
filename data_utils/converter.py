@@ -20,7 +20,7 @@ class DataConverter:
 		クラスの初期化
 		:param batch_col_size: 学習時のミニバッチ単語数サイズ
 		'''
-		self.mecab = MeCab.Tagger('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd') # 形態素解析器
+		self.mecab = MeCab.Tagger('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
 		self.vocab = {}
 		self.batch_col_size = batch_col_size
 
@@ -35,25 +35,11 @@ class DataConverter:
 		data = list(zip(que, res))
 		self.teacher_num = len(data)
 
-		# 単語辞書の登録
-		if os.path.isfile(path + 'vocab.txt'): # 単語辞書ファイルからload
-			with open(path + 'vocab.txt', 'r') as f:
-				lines = f.readlines()
-			for i, line in enumerate(lines):
-				self.vocab[line.replace('\n', '')] = i
-		else: # query&responceファイルからload(単語辞書ファイルに書き出す．)
-			self.vocab = {"<eos>": 0, "<unk>": 1} # 単語辞書を初期化
-			for d in data:
-				sentences = [d[0], d[1]] # 入力文、返答文
-				for sentence in sentences:
-					sentence_words = self.sentence2words(sentence) # 文章を単語に分解する
-					for word in sentence_words:
-						if word not in self.vocab:
-							self.vocab[word] = len(self.vocab)
-			# 単語辞書ファイルに書き出す
-			with open('./data/' + 'vocab.txt', 'w') as f:
-				for key in self.vocab.keys():
-					f.write(key + '\n')
+		# 単語辞書データを取り出す
+		with open(path + 'vocab.txt', 'r') as f:
+			lines = f.readlines()
+		for i, line in enumerate(lines):
+			self.vocab[line.replace('\n', '')] = i
 
 		# 教師データのID化と整理
 		queries, responses = [], []
@@ -73,7 +59,7 @@ class DataConverter:
 		sentence_words = []
 		for m in self.mecab.parse(sentence).split("\n"): # 形態素解析で単語に分解する
 			w = m.split("\t")[0].lower() # 単語
-			if len(w) == 0 or w == "eos": # 不正文字、EOSは省略
+			if (len(w) == 0) or (w is "eos"): # 不正文字、EOSは省略
 				continue
 			sentence_words.append(w)
 		sentence_words.append("<eos>") # 最後にvocabに登録している<eos>を代入する
