@@ -5,7 +5,7 @@ import os
 from chainer import cuda
 # import cupy as cp
 import numpy as np
-import MeCab
+from google.cloud import language
 
 FLAG_GPU = False
 if FLAG_GPU:
@@ -21,7 +21,8 @@ class DataConverter:
 		クラスの初期化
 		:param batch_col_size: 学習時のミニバッチ単語数サイズ
 		'''
-		self.mecab = MeCab.Tagger('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
+		# Instantiates a client
+		self.client = language.LanguageServiceClient()
 		# 単語辞書は，配列の添字をIDとして使う
 		self.vocab = []
 		self.batch_col_size = batch_col_size
@@ -42,8 +43,8 @@ class DataConverter:
 			queries.append(self.batch_ids(query))
 			respo = list(map(int, q.replace('\n', '').split(',')))
 			responses.append(self.batch_ids(respo))
-		self.train_queries = xp.vstack(queries)
-		self.train_responses = xp.vstack(responses)
+		self.train_queries = xp.vstack(xp.array(queries))
+		self.train_responses = xp.vstack(xp.array(responses))
 
 		# 単語辞書データを取り出す
 		with open(path + 'vocab.txt', 'r') as f:
@@ -64,12 +65,21 @@ class DataConverter:
 		:param sentence: 文章文字列
 		:return: 単語ごとに分割した配列
 		'''
+		# Natural Language API
+		# The text to analyze
+		document = language.types.Document(
+			content=sentence,
+			type=language.enums.Document.Type.PLAIN_TEXT
+		)
+		# Detects syntax in the document. You can also analyze HTML with:
+		#   document.type == enums.Document.Type.HTML
+		tokens = self.client.analyze_syntax(document).tokens
+
 		sentence_words = []
-		for m in self.mecab.parse(sentence).split("\n"): # 形態素解析で単語に分解する
-			w = m.split("\t")[0].lower() # 単語
-			if (len(w) == 0) or (w == "eos"): # 不正文字、EOSは省略
-				continue
-			sentence_words.append(w)
+		for token in tokens:
+			w = token.text.content # 単語
+			if len(w) != 0: # 不正文字は省略
+				sentence_words.append(w)
 		sentence_words.append("<eos>") # 最後にvocabに登録している<eos>を代入する
 		return sentence_words
 
