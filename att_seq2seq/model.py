@@ -3,14 +3,14 @@
 import chainer.functions as F
 import chainer.links as L
 from chainer import Chain, Variable, cuda
-# import cupy as cp
-import numpy as np
 
 FLAG_GPU = False
 if FLAG_GPU:
+	import cupy as cp
 	xp = cp
 	cuda.get_device(0).use()
 else:
+	import numpy as np
 	xp = np
 
 __all__ = ['AttSeq2Seq']
