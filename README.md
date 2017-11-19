@@ -16,6 +16,8 @@ data = [["query data", "responce data"],
 ```
 
 ### Important
+parser.pyだけmainと切り離されている．
+
 同一人物の連続した発話は除外
 
 [日本語自然会話書き起こしコーパス（旧名大会話コーパス）](http://mmsrv.ninjal.ac.jp/nucc/)を使用
