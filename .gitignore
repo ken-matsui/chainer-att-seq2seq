@@ -7,8 +7,6 @@ raw/facebook
 raw/line/*
 raw/corpus/*
 
-libcudnn7-dev_7.0.4.31-1+cuda9.0_amd64.deb
-
 !.gitkeep
 *.pyc
 __pycache__

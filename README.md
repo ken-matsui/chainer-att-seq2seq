@@ -8,7 +8,7 @@ $ mv ~/Downloads/facebook-$(USER) ./raw/facebook
 $ mv ~/Downloads/\[LINE\]\ Chat\ with\ *.txt ./raw/line/
 ```
 
-### Input data.
+### Input data
 ```
 data = [["query data", "responce data"],
 	["query data", "responce data"],
