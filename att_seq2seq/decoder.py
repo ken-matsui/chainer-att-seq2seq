@@ -7,7 +7,7 @@ class Decoder(object):
 		serializers.load_npz(npz, self.model)
 
 	def __call__(self, query):
-		enc_query = self.data_converter.sentence2ids(query, train=False)
+		enc_query = self.data_converter.sentence2ids(query)
 		dec_response = self.model(enc_words=enc_query, train=False)
 		response = self.data_converter.ids2words(dec_response)
 		if "<eos>" in response: # 最後の<eos>を回避
