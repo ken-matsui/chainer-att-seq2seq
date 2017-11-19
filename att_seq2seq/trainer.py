@@ -47,5 +47,5 @@ class Trainer(object):
 					self.model.to_gpu(0)
 			# if (epoch+1)%10 == 0: # 1epochがでかいので，毎epochで表示
 			ed = datetime.datetime.now()
-			print("epoch:\t{}\ttotal loss:\t{}\ttime:\t{}".format(epoch+1, total_loss, ed-st))
+			print("epoch: {}\ttotal loss: {}\ttime: {}".format(epoch+1, total_loss, ed-st))
 			st = datetime.datetime.now()
