@@ -3,15 +3,15 @@
 import os
 
 from chainer import cuda
-# import cupy as cp
-import numpy as np
-from google.cloud import language
+# from google.cloud import language
 
 FLAG_GPU = False
 if FLAG_GPU:
+	import cupy as cp
 	xp = cp
 	cuda.get_device(0).use()
 else:
+	import numpy as np
 	xp = np
 
 # データ変換クラスの定義
@@ -22,7 +22,7 @@ class DataConverter:
 		:param batch_col_size: 学習時のミニバッチ単語数サイズ
 		'''
 		# Instantiates a client
-		self.client = language.LanguageServiceClient()
+		# self.client = language.LanguageServiceClient()
 		# 単語辞書は，配列の添字をIDとして使う
 		self.vocab = []
 		self.batch_col_size = batch_col_size
@@ -66,21 +66,21 @@ class DataConverter:
 		'''
 		# Natural Language API
 		# The text to analyze
-		document = language.types.Document(
-			content=sentence,
-			type=language.enums.Document.Type.PLAIN_TEXT
-		)
-		# Detects syntax in the document. You can also analyze HTML with:
-		#   document.type == enums.Document.Type.HTML
-		tokens = self.client.analyze_syntax(document).tokens
+		# document = language.types.Document(
+		# 	content=sentence,
+		# 	type=language.enums.Document.Type.PLAIN_TEXT
+		# )
+		# # Detects syntax in the document. You can also analyze HTML with:
+		# #   document.type == enums.Document.Type.HTML
+		# tokens = self.client.analyze_syntax(document).tokens
 
-		sentence_words = []
-		for token in tokens:
-			w = token.text.content # 単語
-			if len(w) != 0: # 不正文字は省略
-				sentence_words.append(w)
-		sentence_words.append("<eos>") # 最後にvocabに登録している<eos>を代入する
-		return sentence_words
+		# sentence_words = []
+		# for token in tokens:
+		# 	w = token.text.content # 単語
+		# 	if len(w) != 0: # 不正文字は省略
+		# 		sentence_words.append(w)
+		# sentence_words.append("<eos>") # 最後にvocabに登録している<eos>を代入する
+		# return sentence_words
 
 	def sentence2ids(self, sentence):
 		'''
