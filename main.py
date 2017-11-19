@@ -42,7 +42,7 @@ def main():
 			files = glob.glob(TRAIN_PATH + "*.npz")
 			num = max(list(map(lambda s: int(s.replace(TRAIN_PATH, "").replace(".npz", "")), files)))
 			npz = TRAIN_PATH + str(num) + ".npz"
-			print("Train resume by", str(num) + ".npz")
+			print("Resume learning from", str(num) + ".npz")
 		else:
 			print("Train")
 			npz = None
@@ -58,7 +58,7 @@ def main():
 		files = glob.glob(TRAIN_PATH + "*.npz")
 		num = max(list(map(lambda s: int(s.replace(TRAIN_PATH, "").replace(".npz", "")), files)))
 		npz = TRAIN_PATH + str(num) + ".npz"
-		print("Decode interact by", str(num) + ".npz")
+		print("Interactive decode from", str(num) + ".npz")
 		decoder = Decoder(model, data_converter, npz)
 		while True:
 			query = input("> ")
