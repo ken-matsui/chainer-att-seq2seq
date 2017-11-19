@@ -40,9 +40,9 @@ def main():
 		if FLAGS.resume:
 			print("Train resume")
 			# 最新のモデルデータを使用する．
-			lst = glob.glob(TRAIN_PATH + "*.npz")
-			npz = max(list(map(lambda s: int(s.replace(TRAIN_PATH, "").replace(".npz", "")), lst)))
-			npz = TRAIN_PATH + str(npz) + ".npz"
+			files = glob.glob(TRAIN_PATH + "*.npz")
+			num = max(list(map(lambda s: int(s.replace(TRAIN_PATH, "").replace(".npz", "")), files)))
+			npz = TRAIN_PATH + str(num) + ".npz"
 		else:
 			print("Train")
 			npz = None
@@ -55,9 +55,9 @@ def main():
 					flag_gpu=FLAGS.gpu)
 	elif FLAGS.decode:
 		# 最新のモデルデータを使用する．
-		lst = glob.glob(TRAIN_PATH + "*.npz")
-		npz = max(list(map(lambda s: int(s.replace(TRAIN_PATH, "").replace(".npz", "")), lst)))
-		npz = TRAIN_PATH + str(npz) + ".npz"
+		files = glob.glob(TRAIN_PATH + "*.npz")
+		num = max(list(map(lambda s: int(s.replace(TRAIN_PATH, "").replace(".npz", "")), files)))
+		npz = TRAIN_PATH + str(num) + ".npz"
 		print("Decode interact by", npz.replace(TRAIN_PATH, ""))
 		decoder = Decoder(model, data_converter, npz)
 		while True:
