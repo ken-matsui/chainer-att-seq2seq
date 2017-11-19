@@ -1,10 +1,12 @@
 from chainer import serializers
 
 class Decoder(object):
-	def __init__(self, model, data_converter, npz):
+	def __init__(self, model, data_converter, npz, flag_gpu=False):
 		self.model = model
 		self.data_converter = data_converter
 		serializers.load_npz(npz, self.model)
+		if flag_gpu:
+			self.model.to_gpu(0)
 
 	def __call__(self, query):
 		enc_query = self.data_converter.sentence2ids(query)
