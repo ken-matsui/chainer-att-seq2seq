@@ -96,7 +96,6 @@ def write2file(usrs, msgs, que_file, res_file, queid_file, resid_file, vocab_fil
 	frid.close()
 
 	# 単語辞書の生成
-	# 配列のindexがID
 	with open(vocab_file, 'w') as f:
 		for v in vocab:
 			f.write(v + '\n')

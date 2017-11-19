@@ -20,7 +20,7 @@ FLAGS = parser.parse_args()
 
 EMBED_SIZE = 100
 HIDDEN_SIZE = 100
-BATCH_SIZE = 20
+BATCH_SIZE = 500
 BATCH_COL_SIZE = 15
 EPOCH_NUM = 1000
 DATA_PATH = './data/'
@@ -38,11 +38,11 @@ def main():
 
 	if FLAGS.train:
 		if FLAGS.resume:
-			print("Train resume")
 			# 最新のモデルデータを使用する．
 			files = glob.glob(TRAIN_PATH + "*.npz")
 			num = max(list(map(lambda s: int(s.replace(TRAIN_PATH, "").replace(".npz", "")), files)))
 			npz = TRAIN_PATH + str(num) + ".npz"
+			print("Train resume by", str(num) + ".npz")
 		else:
 			print("Train")
 			npz = None
@@ -58,7 +58,7 @@ def main():
 		files = glob.glob(TRAIN_PATH + "*.npz")
 		num = max(list(map(lambda s: int(s.replace(TRAIN_PATH, "").replace(".npz", "")), files)))
 		npz = TRAIN_PATH + str(num) + ".npz"
-		print("Decode interact by", npz.replace(TRAIN_PATH, ""))
+		print("Decode interact by", str(num) + ".npz")
 		decoder = Decoder(model, data_converter, npz)
 		while True:
 			query = input("> ")
