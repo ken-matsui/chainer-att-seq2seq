@@ -106,5 +106,5 @@ class DataConverter:
 		'''
 		words = [] # 単語を格納する配列
 		for i in ids: # 順番に単語IDを単語辞書から参照して単語に変換する
-			words.append(vocab[i])
+			words.append(self.vocab[int(i)])
 		return words

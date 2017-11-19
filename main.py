@@ -59,7 +59,7 @@ def main():
 		num = max(list(map(lambda s: int(s.replace(TRAIN_PATH, "").replace(".npz", "")), files)))
 		npz = TRAIN_PATH + str(num) + ".npz"
 		print("Interactive decode from", str(num) + ".npz")
-		decoder = Decoder(model, data_converter, npz)
+		decoder = Decoder(model, data_converter, npz, FLAGS.gpu)
 		while True:
 			query = input("> ")
 			print(decoder(query))
