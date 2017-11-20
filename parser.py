@@ -32,8 +32,8 @@ def is_bad_sentence(s):
 def parse_sentence(sentence):
 	# URLの排除
 	sentence = RE_URL.sub("", sentence)
-	# もし無駄な改行などがあれば，排除して付ける
-	sentence = sentence.strip() + "\n"
+	# もし無駄な改行などがあれば排除
+	sentence = sentence.strip()
 
 	# sentence to words
 	words = []
