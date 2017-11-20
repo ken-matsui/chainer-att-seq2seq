@@ -14,6 +14,7 @@ import slackweb
 FLAG_GPU = False
 if FLAG_GPU:
 	import cupy as cp
+	from chainer import cuda
 	xp = cp
 	cuda.get_device(0).use()
 else:
@@ -34,6 +35,9 @@ class Trainer(object):
 			self.npz_num = 0
 
 	def fit(self, queries, responses, teacher_num, epoch_num=30, batch_size=40, flag_gpu=False):
+		queries = xp.vstack(xp.array(queries))
+		responses = xp.vstack(xp.array(responses))
+
 		opt = optimizers.Adam()
 		opt.setup(self.model)
 		opt.add_hook(optimizer.GradientClipping(5))
