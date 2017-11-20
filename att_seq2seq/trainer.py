@@ -89,7 +89,7 @@ class Trainer(object):
 				if flag_gpu:
 					self.model.to_gpu(0)
 			ed = datetime.datetime.now()
-			data = "epoch: {}\tloss: {}\taccuracy: {}\ttime: {}".format(epoch+1, int(total_loss), int(accuracy), ed-st)
+			data = "epoch: {}\tloss: {}\taccuracy: {}\ttime: {}".format(epoch+1, int(total_loss), int(total_accuracy), ed-st)
 			slack.notify(text=data)
 			print(data)
 			st = datetime.datetime.now()
