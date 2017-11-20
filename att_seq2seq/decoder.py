@@ -23,11 +23,13 @@ class Decoder(object):
 		if flag_gpu:
 			self.model.to_gpu(0)
 
-	def __call__(self, query):
+	def __call__(self, query, flag_gpu=False):
 		# モデルの勾配などをリセット
 		self.model.reset()
 		# userからの入力文をIDに変換
 		enc_query = self.sentence2ids(query)
+		# Numpy配列に変換
+		enc_query = xp.array([enc_query], dtype="int32")
 		enc_query = enc_query.T
 		# エンコード時のバッチサイズ
 		encode_batch_size = len(enc_query[0])
@@ -81,9 +83,9 @@ class Decoder(object):
 
 	def sentence2ids(self, sentence):
 		'''
-		文章を単語IDのNumpy配列に変換して返却する
+		文章を単語IDの配列に変換して返却する
 		:param sentence: 文章文字列
-		:return: 単語IDのNumpy配列
+		:return: 単語IDの配列
 		'''
 		ids = [] # 単語IDに変換して格納する配列
 		sentence_words = self.sentence2words(sentence) # 文章を単語に分解する
@@ -92,7 +94,6 @@ class Decoder(object):
 				ids.append(self.vocab.index(word))
 			else: # 単語辞書に存在しない単語ならば、<unk>のIDに変換する
 				ids.append(self.vocab.index("<unk>"))
-		ids = xp.array([ids], dtype="int32")
 		return ids
 
 	def ids2words(self, ids):
