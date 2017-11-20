@@ -1,10 +1,18 @@
 # coding: utf-8
 
-import datetime
+import os
 import re
+import datetime
+from os.path import join, dirname
 
 from chainer import optimizer, optimizers, serializers
 import numpy as np
+from dotenv import load_dotenv
+import slackweb
+
+dotenv_path = join(dirname(__file__), '../.env')
+load_dotenv(dotenv_path)
+slack = slackweb.Slack(os.environ.get("SLACK_WEBHOOK"))
 
 class Trainer(object):
 	def __init__(self, model, npz=None):
@@ -45,7 +53,8 @@ class Trainer(object):
 				serializers.save_npz("./train/" + str(epoch+1) + ".npz", self.model)
 				if flag_gpu:
 					self.model.to_gpu(0)
-			# if (epoch+1)%10 == 0: # 1epochがでかいので，毎epochで表示
 			ed = datetime.datetime.now()
-			print("epoch: {}\ttotal loss: {}\ttime: {}".format(epoch+1, total_loss, ed-st))
+			data = "epoch: {}\tloss: {}\ttime: {}".format(epoch+1, total_loss, ed-st)
+			slack.notify(text=data)
+			print(data)
 			st = datetime.datetime.now()
