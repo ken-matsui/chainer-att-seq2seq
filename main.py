@@ -21,6 +21,7 @@ FLAGS = parser.parse_args()
 EMBED_SIZE = 100
 HIDDEN_SIZE = 100
 BATCH_SIZE = 20
+# デコードはEOSが出力されれば終了する、出力されない場合の最大出力語彙数
 BATCH_COL_SIZE = 15
 EPOCH_NUM = 500
 DATA_PATH = './data/'
@@ -33,8 +34,7 @@ def main():
 
 	model = AttSeq2Seq(vocab_size=vocab_size,
 					   embed_size=EMBED_SIZE,
-					   hidden_size=HIDDEN_SIZE,
-					   batch_col_size=BATCH_COL_SIZE)
+					   hidden_size=HIDDEN_SIZE)
 
 	if FLAGS.train:
 		if FLAGS.resume:
@@ -59,7 +59,10 @@ def main():
 		num = max(list(map(lambda s: int(s.replace(TRAIN_PATH, "").replace(".npz", "")), files)))
 		npz = TRAIN_PATH + str(num) + ".npz"
 		print("Interactive decode from", npz)
-		decoder = Decoder(model, data_converter, npz, FLAGS.gpu)
+		decoder = Decoder(model=model,
+						  npz=npz,
+						  decode_max_size=BATCH_COL_SIZE,
+						  flag_gpu=FLAGS.gpu)
 		while True:
 			query = input("> ")
 			print(decoder(query))

@@ -119,7 +119,7 @@ class Attention(Chain):
 
 # Attention Sequence to Sequence Modelクラス
 class AttSeq2Seq(Chain):
-	def __init__(self, vocab_size, embed_size, hidden_size, batch_col_size):
+	def __init__(self, vocab_size, embed_size, hidden_size):
 		'''
 		Attention + Seq2Seqのインスタンス化
 		:param vocab_size: 語彙数のサイズ
@@ -135,45 +135,9 @@ class AttSeq2Seq(Chain):
 		self.vocab_size = vocab_size
 		self.embed_size = embed_size
 		self.hidden_size = hidden_size
-		self.decode_max_size = batch_col_size # デコードはEOSが出力されれば終了する、出力されない場合の最大出力語彙数
 		# 順向きのEncoderの中間ベクトル、逆向きのEncoderの中間ベクトルを保存するためのリストを初期化
 		self.fs = []
 		self.bs = []
-
-	def __call__(self, enc_words, dec_words=None, train=True):
-		'''
-		順伝播の計算を行う関数
-		:param enc_words: 発話文の単語を記録したリスト
-		:param dec_words: 応答文の単語を記録したリスト
-		:param train: 学習か予測か
-		:return: 計算した損失の合計 or 予測したデコード文字列
-		'''
-		enc_words = enc_words.T
-		if train:
-			dec_words = dec_words.T
-		batch_size = len(enc_words[0]) # バッチサイズを記録
-		self.reset() # model内に保存されている勾配をリセット
-		enc_words = [Variable(xp.array(row, dtype='int32')) for row in enc_words] # 発話リスト内の単語をVariable型に変更
-		self.encode(enc_words, batch_size) # エンコードの計算
-		t = Variable(xp.array([0 for _ in range(batch_size)], dtype='int32')) # <eos>をデコーダーに読み込ませる
-		loss = Variable(xp.zeros((), dtype='float32')) # 損失の初期化
-		ys = [] # デコーダーが生成する単語を記録するリスト
-		# デコーダーの計算
-		if train: # 学習の場合は損失を計算する
-			for w in dec_words:
-				y = self.decode(t) # 1単語ずつをデコードする
-				t = Variable(xp.array(w, dtype='int32')) # 正解単語をVariable型に変換
-				loss += F.softmax_cross_entropy(y, t) # 正解単語と予測単語を照らし合わせて損失を計算
-			return loss
-		else: # 予測の場合はデコード文字列を生成する
-			for i in range(self.decode_max_size):
-				y = self.decode(t)
-				y = xp.argmax(y.data) # 確率で出力されたままなので、確率が高い予測単語を取得する
-				ys.append(y)
-				t = Variable(xp.array([y], dtype='int32'))
-				if y == 0: # EOSを出力したならばデコードを終了する
-					break
-			return ys
 
 	def encode(self, words, batch_size):
 		'''
