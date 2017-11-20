@@ -6,6 +6,7 @@ from google.cloud import language
 FLAG_GPU = False
 if FLAG_GPU:
 	import cupy as cp
+	from chainer import cuda
 	xp = cp
 	cuda.get_device(0).use()
 else:
@@ -13,7 +14,7 @@ else:
 	xp = np
 
 class Decoder(object):
-	def __init__(self, model, npz, decode_max_size, flag_gpu=False):
+	def __init__(self, model, npz, vocab, decode_max_size, flag_gpu=False):
 		self.model = model
 		self.decode_max_size = decode_max_size
 		self.client = language.LanguageServiceClient()

@@ -2,11 +2,12 @@
 
 import chainer.functions as F
 import chainer.links as L
-from chainer import Chain, Variable, cuda
+from chainer import Chain, Variable
 
 FLAG_GPU = False
 if FLAG_GPU:
 	import cupy as cp
+	from chainer import cuda
 	xp = cp
 	cuda.get_device(0).use()
 else:
