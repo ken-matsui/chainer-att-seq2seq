@@ -9,13 +9,13 @@ from att_seq2seq.trainer import Trainer
 from att_seq2seq.decoder import Decoder
 
 parser = argparse.ArgumentParser(description='This script is seq2seq with chainer. Show usable arguments below ...')
+parser.add_argument('-p', '--parse', default=False, action='store_true', help='Parse mode if this flag is set')
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-t', '--train', default=False, action='store_true', help='Train mode if this flag is set')
 group.add_argument('-d', '--decode', default=False, action='store_true', help='Decode mode if this flag is set')
-parser.add_argument('-g', '--gpu', default=False, action='store_true', help='GPU mode if this flag is set')
 parser.add_argument('-r', '--resume', default=False, action='store_true', help='Resume mode if this flag is set')
-# parser.add_argument() # TODO: --decodeを指定した時だけ必須にしたい．かつ，stringを受け取りたい．
-# TODO: 指定がなければ，最新のモデルファイルを使用したい．
+parser.add_argument('-g', '--gpu', default=False, action='store_true', help='GPU mode if this flag is set')
+# parser.add_argument('-s', '--select') # TODO: --decodeを指定した時だけ必須にしたい．かつ，stringを受け取りたい．
 FLAGS = parser.parse_args()
 
 EMBED_SIZE = 100
@@ -28,8 +28,12 @@ DATA_PATH = './data/'
 TRAIN_PATH = './train/'
 
 def main():
-	vocab = load_vocab(DATA_PATH)
+	if FLAGS.parse:
+		import parser
+		parser.main()
 
+	# 単語辞書の読み込み
+	vocab = load_vocab(DATA_PATH)
 	model = AttSeq2Seq(vocab_size=len(vocab),
 					   embed_size=EMBED_SIZE,
 					   hidden_size=HIDDEN_SIZE)
