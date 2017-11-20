@@ -11,16 +11,6 @@ import numpy as np
 from dotenv import load_dotenv
 import slackweb
 
-FLAG_GPU = False
-if FLAG_GPU:
-	import cupy as cp
-	from chainer import cuda
-	xp = cp
-	cuda.get_device(0).use()
-else:
-	import numpy as np
-	xp = np
-
 dotenv_path = join(dirname(__file__), '../.env')
 load_dotenv(dotenv_path)
 slack = slackweb.Slack(os.environ.get("SLACK_WEBHOOK"))
@@ -35,6 +25,15 @@ class Trainer(object):
 			self.npz_num = 0
 
 	def fit(self, queries, responses, teacher_num, epoch_num=30, batch_size=40, flag_gpu=False):
+		if flag_gpu:
+			import cupy as cp
+			from chainer import cuda
+			xp = cp
+			cuda.get_device(0).use()
+		else:
+			import numpy as np
+			xp = np
+
 		queries = xp.vstack(xp.array(queries))
 		responses = xp.vstack(xp.array(responses))
 
