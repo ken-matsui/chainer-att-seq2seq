@@ -2,7 +2,7 @@
 
 import argparse
 from glob import glob
-from os.path import join, relpath, splitext
+from os.path import relpath, splitext
 
 from att_seq2seq.model import AttSeq2Seq
 from att_seq2seq.trainer import Trainer
@@ -39,7 +39,7 @@ def main():
 		queries, responses, teacher_num = load_queres(DATA_PATH)
 		if FLAGS.resume:
 			# 最新のモデルデータを使用する．
-			files = [splitext(relpath(s, TRAIN_PATH))[0] for s in glob(join(TRAIN_PATH, "*.npz"))]
+			files = [splitext(relpath(s, TRAIN_PATH))[0] for s in glob(TRAIN_PATH + "*.npz")]
 			num = max(list(map(int, files)))
 			npz = TRAIN_PATH + str(num) + ".npz"
 			print("Resume learning from", npz)
@@ -55,7 +55,7 @@ def main():
 					flag_gpu=FLAGS.gpu)
 	elif FLAGS.decode:
 		# 最新のモデルデータを使用する．
-		files = [splitext(relpath(s, TRAIN_PATH))[0] for s in glob(join(TRAIN_PATH, "*.npz"))]
+		files = [splitext(relpath(s, TRAIN_PATH))[0] for s in glob(TRAIN_PATH + "*.npz")]
 		num = max(list(map(int, files)))
 		npz = TRAIN_PATH + str(num) + ".npz"
 		print("Interactive decode from", npz)
