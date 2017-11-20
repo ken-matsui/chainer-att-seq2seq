@@ -16,6 +16,7 @@ else:
 class Decoder(object):
 	def __init__(self, model, npz, vocab, decode_max_size, flag_gpu=False):
 		self.model = model
+		self.vocab = vocab
 		self.decode_max_size = decode_max_size
 		self.client = language.LanguageServiceClient()
 		serializers.load_npz(npz, self.model)
