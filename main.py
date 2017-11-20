@@ -20,9 +20,9 @@ FLAGS = parser.parse_args()
 
 EMBED_SIZE = 100
 HIDDEN_SIZE = 100
-BATCH_SIZE = 500
+BATCH_SIZE = 20
 BATCH_COL_SIZE = 15
-EPOCH_NUM = 1000
+EPOCH_NUM = 500
 DATA_PATH = './data/'
 TRAIN_PATH = './train/'
 
