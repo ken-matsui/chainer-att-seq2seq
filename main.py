@@ -18,8 +18,8 @@ parser.add_argument('-g', '--gpu', default=False, action='store_true', help='GPU
 # parser.add_argument('-s', '--select') # TODO: --decodeを指定した時だけ必須にしたい．かつ，stringを受け取りたい．
 FLAGS = parser.parse_args()
 
-EMBED_SIZE = 100
-HIDDEN_SIZE = 100
+EMBED_SIZE = 500
+HIDDEN_SIZE = 500
 BATCH_SIZE = 20
 # デコードはEOSが出力されれば終了する、出力されない場合の最大出力語彙数
 BATCH_COL_SIZE = 15
