@@ -2,7 +2,7 @@
 .DS_STORE
 
 data
-train/*
+train
 raw/facebook
 raw/line/*
 raw/corpus/*

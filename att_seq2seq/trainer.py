@@ -24,7 +24,7 @@ class Trainer(object):
 		else:
 			self.npz_num = 0
 
-	def fit(self, queries, responses, teacher_num, epoch_num=30, batch_size=40, flag_gpu=False):
+	def fit(self, queries, responses, teacher_num, train_path, epoch_num=30, batch_size=40, flag_gpu=False):
 		if flag_gpu:
 			import cupy as cp
 			from chainer import cuda
@@ -83,7 +83,7 @@ class Trainer(object):
 				# モデルの保存
 				if flag_gpu: # modelをCPUでも使えるように
 					self.model.to_cpu()
-				serializers.save_npz("./train/" + str(epoch+1) + ".npz", self.model)
+				serializers.save_npz(train_path + str(epoch+1) + ".npz", self.model)
 				if flag_gpu:
 					self.model.to_gpu(0)
 			ed = datetime.datetime.now()

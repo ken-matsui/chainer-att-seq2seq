@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import os
 import argparse
 from glob import glob
 from os.path import relpath, splitext
@@ -48,12 +49,17 @@ def main():
 			npz = TRAIN_PATH + str(num) + ".npz"
 			print("Resume learning from", npz)
 		else:
+			try:
+				os.mkdir(TRAIN_PATH)
+			except:
+				pass
 			print("Train")
 			npz = None
 		trainer = Trainer(model, npz)
 		trainer.fit(queries=queries,
 					responses=responses,
 					teacher_num=teacher_num,
+					train_path=TRAIN_PATH,
 					epoch_num=EPOCH_NUM,
 					batch_size=BATCH_SIZE,
 					flag_gpu=FLAGS.gpu)
