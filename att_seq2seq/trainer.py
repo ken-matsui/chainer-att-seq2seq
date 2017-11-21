@@ -31,7 +31,6 @@ class Trainer(object):
 			xp = cp
 			cuda.get_device(0).use()
 		else:
-			import numpy as np
 			xp = np
 
 		queries = xp.vstack(xp.array(queries))
@@ -88,7 +87,7 @@ class Trainer(object):
 				if flag_gpu:
 					self.model.to_gpu(0)
 			ed = datetime.datetime.now()
-			data = "epoch: {}\tloss: {}\taccuracy: {}\ttime: {}".format(epoch+1, int(total_loss), int(total_accuracy), ed-st)
+			data = "epoch: {}\n\tloss: {}\n\taccuracy: {}\n\ttime: {}".format(epoch+1, round(float(total_loss),2), round(float(total_accuracy),2), ed-st)
 			slack.notify(text=data)
 			print(data)
 			st = datetime.datetime.now()
