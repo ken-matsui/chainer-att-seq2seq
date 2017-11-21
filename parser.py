@@ -129,6 +129,7 @@ def parse_corpus(in_file, outfiles):
 
 	re_kakko = re.compile(r"（.+）")
 	re_keykakko = re.compile(r"【.+】")
+	re_asterisk = re.compile(r"＊")
 
 	usrs = []
 	msgs = []
@@ -140,12 +141,12 @@ def parse_corpus(in_file, outfiles):
 		else:          # output
 			usrs.append("output")
 			msg = line.replace("output: ", "")
-		msg = msg.replace("＊＊＊", "")
 		msg = msg.replace("＜笑い＞", "笑")
 		msg = msg.replace("＜間＞", "")
 		msg = msg.strip()
 		msg = re_kakko.sub("", msg)
 		msg = re_keykakko.sub("", msg)
+		msg = re_asterisk.sub("", msg)
 		msgs.append(msg)
 
 	write2file(usrs, msgs, outfiles)
