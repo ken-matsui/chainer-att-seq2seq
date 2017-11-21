@@ -15,8 +15,8 @@ group = parser.add_mutually_exclusive_group()
 group.add_argument('-t', '--train', default=False, action='store_true', help='Train mode if this flag is set')
 group.add_argument('-d', '--decode', default=False, action='store_true', help='Decode mode if this flag is set')
 parser.add_argument('-r', '--resume', default=False, action='store_true', help='Resume mode if this flag is set')
+parser.add_argument('-s', '--select', type=int, default=0, action='store', metavar='N', help="Select npz file's number")
 parser.add_argument('-g', '--gpu', default=False, action='store_true', help='GPU mode if this flag is set')
-# parser.add_argument('-s', '--select') # TODO: --decodeを指定した時だけ必須にしたい．かつ，stringを受け取りたい．
 FLAGS = parser.parse_args()
 
 EMBED_SIZE = 500
@@ -43,9 +43,13 @@ def main():
 		# 学習用データを読み込む
 		queries, responses, teacher_num = load_queres(DATA_PATH)
 		if FLAGS.resume:
-			# 最新のモデルデータを使用する．
-			files = [splitext(relpath(s, TRAIN_PATH))[0] for s in glob(TRAIN_PATH + "*.npz")]
-			num = max(list(map(int, files)))
+			if FLAGS.select == 0:
+				# 最新のモデルデータを使用する．
+				files = [splitext(relpath(s, TRAIN_PATH))[0] for s in glob(TRAIN_PATH + "*.npz")]
+				num = max(list(map(int, files)))
+			else:
+				# 指定のモデルデータを使用する．
+				num = FLAGS.select
 			npz = TRAIN_PATH + str(num) + ".npz"
 			print("Resume learning from", npz)
 		else:
@@ -64,9 +68,13 @@ def main():
 					batch_size=BATCH_SIZE,
 					flag_gpu=FLAGS.gpu)
 	elif FLAGS.decode:
-		# 最新のモデルデータを使用する．
-		files = [splitext(relpath(s, TRAIN_PATH))[0] for s in glob(TRAIN_PATH + "*.npz")]
-		num = max(list(map(int, files)))
+		if FLAGS.select == 0:
+			# 最新のモデルデータを使用する．
+			files = [splitext(relpath(s, TRAIN_PATH))[0] for s in glob(TRAIN_PATH + "*.npz")]
+			num = max(list(map(int, files)))
+		else:
+			# 指定のモデルデータを使用する．
+			num = FLAGS.select
 		npz = TRAIN_PATH + str(num) + ".npz"
 		print("Interactive decode from", npz)
 		decoder = Decoder(model=model,
