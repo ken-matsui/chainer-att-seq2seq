@@ -1,4 +1,4 @@
-# python_att-seq2seq
+# chainer_att-seq2seq
 
 ## HOW TO USE
 ```
