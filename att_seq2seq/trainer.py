@@ -34,13 +34,9 @@ class Trainer(object):
 			xp = np
 
 		# Train Data と Test Data に分割
-		test_queries, train_queries = queries[:batch_size], queries[batch_size:]
-		test_responses, train_responses = responses[:batch_size], responses[batch_size:]
-		teacher_num = len(list(zip(train_queries, train_responses)))
-		train_queries = xp.vstack(xp.array(train_queries))
-		train_responses = xp.vstack(xp.array(train_responses))
-		test_queries = xp.vstack(xp.array(test_queries))
-		test_responses = xp.vstack(xp.array(test_responses))
+		test_queries, train_queries = xp.vstack(queries[:batch_size]), xp.vstack(queries[batch_size:])
+		test_responses, train_responses = xp.vstack(responses[:batch_size]), xp.vstack(responses[batch_size:])
+		teacher_num = min(len(train_queries), len(train_responses))
 
 		opt = optimizers.Adam()
 		opt.setup(self.model)
