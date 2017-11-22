@@ -41,7 +41,7 @@ def main():
 
 	if FLAGS.train:
 		# 学習用データを読み込む
-		queries, responses, teacher_num = load_queres(DATA_PATH)
+		queries, responses = load_queres(DATA_PATH)
 		if FLAGS.resume:
 			if FLAGS.select == 0:
 				# 最新のモデルデータを使用する．
@@ -62,7 +62,6 @@ def main():
 		trainer = Trainer(model, npz)
 		trainer.fit(queries=queries,
 					responses=responses,
-					teacher_num=teacher_num,
 					train_path=TRAIN_PATH,
 					epoch_num=EPOCH_NUM,
 					batch_size=BATCH_SIZE,
@@ -94,17 +93,15 @@ def load_vocab(path):
 
 def load_queres(path):
 	# 対話データ(ID版)を取り出す
-	with open(path + 'query_id.txt', 'r') as fqid, open(path + 'response_id.txt', 'r') as frid:
-		queid, resid = fqid.readlines(), frid.readlines()
-	teacher_num = len(list(zip(queid, resid)))
 	queries, responses = [], []
-	for q, r in zip(queid, resid):
-		# ミニバッチ対応のため，単語数サイズを調整してNumpy変換する
-		query = list(map(int, q.replace('\n', '').split(',')))
-		queries.append(batch_ids(query))
-		respo = list(map(int, q.replace('\n', '').split(',')))
-		responses.append(batch_ids(respo))
-	return queries, responses, teacher_num
+	with open(path + 'query_id.txt', 'r') as fq, open(path + 'response_id.txt', 'r') as fr:
+		for q, r in zip(fq.readlines(), fr.readlines()):
+			# ミニバッチ対応のため，単語数サイズを調整してNumpy変換する
+			query = list(map(int, q.replace('\n', '').split(',')))
+			queries.append(batch_ids(query))
+			respo = list(map(int, q.replace('\n', '').split(',')))
+			responses.append(batch_ids(respo))
+	return queries, responses
 
 def batch_ids(ids):
 	if len(ids) > BATCH_COL_SIZE: # ミニバッチ単語サイズになるように先頭から削る

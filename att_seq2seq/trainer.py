@@ -24,7 +24,7 @@ class Trainer(object):
 		else:
 			self.npz_num = 0
 
-	def fit(self, queries, responses, teacher_num, train_path, epoch_num=30, batch_size=40, flag_gpu=False):
+	def fit(self, queries, responses, train_path, epoch_num=30, batch_size=40, flag_gpu=False):
 		if flag_gpu:
 			import cupy as cp
 			from chainer import cuda
@@ -33,8 +33,14 @@ class Trainer(object):
 		else:
 			xp = np
 
-		queries = xp.vstack(xp.array(queries))
-		responses = xp.vstack(xp.array(responses))
+		# Train Data と Test Data に分割
+		test_queries, train_queries = queries[:batch_size], queries[batch_size:]
+		test_responses, train_responses = responses[:batch_size], responses[batch_size:]
+		teacher_num = len(list(zip(train_queries, train_responses)))
+		train_queries = xp.vstack(xp.array(train_queries))
+		train_responses = xp.vstack(xp.array(train_responses))
+		test_queries = xp.vstack(xp.array(test_queries))
+		test_responses = xp.vstack(xp.array(test_responses))
 
 		opt = optimizers.Adam()
 		opt.setup(self.model)
@@ -54,8 +60,8 @@ class Trainer(object):
 				# モデルの勾配などをリセット
 				self.model.reset()
 				# 整数列リストからそれぞれのwordを取得
-				enc_words = queries[perm[i:i+batch_size]].T
-				dec_words = responses[perm[i:i+batch_size]].T
+				enc_words = train_queries[perm[i:i+batch_size]].T
+				dec_words = train_responses[perm[i:i+batch_size]].T
 				# エンコード時のバッチサイズ
 				encode_batch_size = len(enc_words[0])
 				# 発話リスト内の単語をVariable型に変更
@@ -79,6 +85,23 @@ class Trainer(object):
 				opt.update()
 				total_loss += loss.data
 				total_accuracy += accuracy.data
+			# 評価計算
+			total_evaluation = 0
+			for j in range(0, batch_size):
+				self.model.reset()
+				enc_words = test_queries[j].T
+				dec_words = test_responses[j].T
+				encode_batch_size = len(enc_words[0])
+				enc_words = [Variable(xp.array(row, dtype='int32')) for row in enc_words]
+				self.model.encode(enc_words, encode_batch_size)
+				t = Variable(xp.array([0] * encode_batch_size, dtype='int32'))
+				# 評価の初期化
+				evaluation = Variable(xp.zeros((), dtype='float32'))
+				for w in dec_words:
+					y = self.model.decode(t)
+					t = Variable(xp.array(w, dtype='int32'))
+					evaluation += F.accuracy(y, t) # 評価の計算
+				total_evaluation += evaluation
 			if (epoch+1) % 10 == 0:
 				# モデルの保存
 				if flag_gpu: # modelをCPUでも使えるように
@@ -87,7 +110,12 @@ class Trainer(object):
 				if flag_gpu:
 					self.model.to_gpu(0)
 			ed = datetime.datetime.now()
-			data = "epoch: {}\n\tloss: {}\n\taccuracy: {}\n\ttime: {}".format(epoch+1, round(float(total_loss),2), round(float(total_accuracy),2), ed-st)
+			epoch_data = "epoch: {}\n".format(epoch + 1)
+			loss_data = "\tloss: {}\n".format(round(float(total_loss),2))
+			accuracy_data = "\taccuracy: {}\n".format(round(float(total_accuracy),2))
+			evaluation_data = "\tevaluation: {}\n".format(round(float(total_evaluation),2))
+			time_data = "\ttime: {}".format(ed-st)
+			data = epoch_data + loss_data + accuracy_data + evaluation_data + time_data
 			slack.notify(text=data)
 			print(data)
 			st = datetime.datetime.now()
