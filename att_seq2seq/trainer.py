@@ -97,7 +97,7 @@ class Trainer(object):
 					y = self.model.decode(t)
 					t = Variable(xp.array(w, dtype='int32'))
 					evaluation += F.accuracy(y, t) # 評価の計算
-				total_evaluation += evaluation
+				total_evaluation += evaluation.data
 			if (epoch+1) % 10 == 0:
 				# モデルの保存
 				if flag_gpu: # modelをCPUでも使えるように
