@@ -33,9 +33,12 @@ class Trainer(object):
 
 	def fit(self, queries, responses, train_path, epoch_num=30, batch_size=40):
 		# Train Data と Test Data に分割
-		test_queries, train_queries = self.xp.vstack(queries[:batch_size]), self.xp.vstack(queries[batch_size:])
-		test_responses, train_responses = self.xp.vstack(responses[:batch_size]), self.xp.vstack(responses[batch_size:])
+		input_num = min(len(queries), len(responses))
+		input_num = int(input_num * 0.2) # input数の中から，２割をtest_numにする
+		test_queries, train_queries = self.xp.vstack(queries[:input_num]), self.xp.vstack(queries[input_num:])
+		test_responses, train_responses = self.xp.vstack(responses[:input_num]), self.xp.vstack(responses[input_num:])
 		teacher_num = min(len(train_queries), len(train_responses))
+		test_num = min(len(test_queries), len(test_responses))
 
 		opt = optimizers.Adam()
 		opt.setup(self.model)
@@ -48,7 +51,7 @@ class Trainer(object):
 		st = datetime.datetime.now()
 		for epoch in range(self.npz_num, epoch_num):
 			# ミニバッチ学習
-			perm = np.random.permutation(teacher_num) # ランダムな整数列リストを取得
+			perm = np.random.permutation(teacher_num) # ランダムでuniqueな整数列リストを取得
 			total_loss = 0
 			total_accuracy = 0
 			for i in range(0, teacher_num, batch_size):
@@ -82,10 +85,11 @@ class Trainer(object):
 				total_accuracy += accuracy.data
 			# 評価計算
 			total_evaluation = 0
-			for j in range(0, batch_size):
+			for j in range(0, test_num, batch_size):
+				perm = np.random.permutation(test_num)
 				self.model.reset()
-				enc_words = test_queries[j].T
-				dec_words = test_responses[j].T
+				enc_words = test_queries[perm[j:j+batch_size]].T
+				dec_words = test_responses[perm[j:j+batch_size]].T
 				encode_batch_size = len(enc_words[0])
 				enc_words = [Variable(self.xp.array(row, dtype='int32')) for row in enc_words]
 				self.model.encode(enc_words, encode_batch_size)
