@@ -2,17 +2,7 @@
 
 import chainer.functions as F
 import chainer.links as L
-from chainer import Chain, Variable
-
-FLAG_GPU = False
-if FLAG_GPU:
-	import cupy as cp
-	from chainer import cuda
-	xp = cp
-	cuda.get_device(0).use()
-else:
-	import numpy as np
-	xp = np
+from chainer import Chain, Variable, cuda
 
 __all__ = ['AttSeq2Seq']
 
@@ -78,7 +68,7 @@ class AttLSTMDecoder(Chain):
 
 # Attentionモデルクラス
 class Attention(Chain):
-	def __init__(self, hidden_size):
+	def __init__(self, hidden_size, flag_gpu=False):
 		'''
 		Attentionのインスタンス化
 		:param hidden_size: 隠れ層のサイズ
@@ -90,6 +80,13 @@ class Attention(Chain):
 			hw = L.Linear(hidden_size, 1), # 隠れ層サイズのベクトルをスカラーに変換するための線形結合層
 		)
 		self.hidden_size = hidden_size # 隠れ層のサイズを記憶
+		if flag_gpu:
+			import cupy as cp
+			self.ARR = cp
+			cuda.get_device(0).use()
+		else:
+			import numpy as np
+			self.ARR = np
 
 	def __call__(self, fs, bs, h):
 		'''
@@ -101,7 +98,7 @@ class Attention(Chain):
 		'''
 		batch_size = h.data.shape[0] # ミニバッチのサイズを記憶
 		ws = [] # ウェイトを記録するためのリストの初期化
-		sum_w = Variable(xp.zeros((batch_size, 1), dtype='float32')) # ウェイトの合計値を計算するための値を初期化
+		sum_w = Variable(self.ARR.zeros((batch_size, 1), dtype='float32')) # ウェイトの合計値を計算するための値を初期化
 		# Encoderの中間ベクトルとDecoderの中間ベクトルを使ってウェイトの計算
 		for f, b in zip(fs, bs):
 			w = F.tanh(self.fh(f)+self.bh(b)+self.hh(h)) # 順向きEncoderの中間ベクトル、逆向きEncoderの中間ベクトル、Decoderの中間ベクトルを使ってウェイトの計算
@@ -109,8 +106,8 @@ class Attention(Chain):
 			ws.append(w) # 計算したウェイトを記録
 			sum_w += w
 		# 出力する加重平均ベクトルの初期化
-		att_f = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
-		att_b = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
+		att_f = Variable(self.ARR.zeros((batch_size, self.hidden_size), dtype='float32'))
+		att_b = Variable(self.ARR.zeros((batch_size, self.hidden_size), dtype='float32'))
 		for f, b, w in zip(fs, bs, ws):
 			w /= sum_w # ウェイトの和が1になるように正規化
 			# ウェイト * Encoderの中間ベクトルを出力するベクトルに足していく
@@ -120,7 +117,7 @@ class Attention(Chain):
 
 # Attention Sequence to Sequence Modelクラス
 class AttSeq2Seq(Chain):
-	def __init__(self, vocab_size, embed_size, hidden_size):
+	def __init__(self, vocab_size, embed_size, hidden_size, flag_gpu=False):
 		'''
 		Attention + Seq2Seqのインスタンス化
 		:param vocab_size: 語彙数のサイズ
@@ -130,7 +127,7 @@ class AttSeq2Seq(Chain):
 		super(AttSeq2Seq, self).__init__(
 			f_encoder = LSTMEncoder(vocab_size, embed_size, hidden_size), # 順向きのEncoder
 			b_encoder = LSTMEncoder(vocab_size, embed_size, hidden_size), # 逆向きのEncoder
-			attention = Attention(hidden_size), # Attention Model
+			attention = Attention(hidden_size, flag_gpu), # Attention Model
 			decoder = AttLSTMDecoder(vocab_size, embed_size, hidden_size) # Decoder
 		)
 		self.vocab_size = vocab_size
@@ -139,6 +136,13 @@ class AttSeq2Seq(Chain):
 		# 順向きのEncoderの中間ベクトル、逆向きのEncoderの中間ベクトルを保存するためのリストを初期化
 		self.fs = []
 		self.bs = []
+		if flag_gpu:
+			import cupy as cp
+			self.ARR = cp
+			cuda.get_device(0).use()
+		else:
+			import numpy as np
+			self.ARR = np
 
 	def encode(self, words, batch_size):
 		'''
@@ -148,22 +152,22 @@ class AttSeq2Seq(Chain):
 		:return:
 		'''
 		# 内部メモリ、中間ベクトルの初期化
-		c = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
-		h = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
+		c = Variable(self.ARR.zeros((batch_size, self.hidden_size), dtype='float32'))
+		h = Variable(self.ARR.zeros((batch_size, self.hidden_size), dtype='float32'))
 		# 順向きのEncoderの計算
 		for w in words:
 			c, h = self.f_encoder(w, c, h)
 			self.fs.append(h) # 計算された中間ベクトルを記録
 		# 内部メモリ、中間ベクトルの初期化
-		c = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
-		h = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
+		c = Variable(self.ARR.zeros((batch_size, self.hidden_size), dtype='float32'))
+		h = Variable(self.ARR.zeros((batch_size, self.hidden_size), dtype='float32'))
 		# 逆向きのEncoderの計算
 		for w in reversed(words):
 			c, h = self.b_encoder(w, c, h)
 			self.bs.insert(0, h) # 計算された中間ベクトルを記録
 		# 内部メモリ、中間ベクトルの初期化
-		self.c = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
-		self.h = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
+		self.c = Variable(self.ARR.zeros((batch_size, self.hidden_size), dtype='float32'))
+		self.h = Variable(self.ARR.zeros((batch_size, self.hidden_size), dtype='float32'))
 
 	def decode(self, w):
 		'''

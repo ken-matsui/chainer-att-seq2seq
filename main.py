@@ -37,7 +37,8 @@ def main():
 	vocab = load_vocab(DATA_PATH)
 	model = AttSeq2Seq(vocab_size=len(vocab),
 					   embed_size=EMBED_SIZE,
-					   hidden_size=HIDDEN_SIZE)
+					   hidden_size=HIDDEN_SIZE,
+					   flag_gpu=FLAGS.gpu)
 
 	if FLAGS.train:
 		# 学習用データを読み込む
@@ -59,13 +60,12 @@ def main():
 				pass
 			print("Train")
 			npz = None
-		trainer = Trainer(model, npz)
+		trainer = Trainer(model, npz, FLAGS.gpu)
 		trainer.fit(queries=queries,
 					responses=responses,
 					train_path=TRAIN_PATH,
 					epoch_num=EPOCH_NUM,
-					batch_size=BATCH_SIZE,
-					flag_gpu=FLAGS.gpu)
+					batch_size=BATCH_SIZE)
 	elif FLAGS.decode:
 		if FLAGS.select == 0:
 			# 最新のモデルデータを使用する．
