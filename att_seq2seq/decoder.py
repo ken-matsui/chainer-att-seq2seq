@@ -1,17 +1,7 @@
 # coding: utf-8
 
-from chainer import serializers, Variable
+from chainer import serializers, Variable, cuda
 from google.cloud import language
-
-FLAG_GPU = False
-if FLAG_GPU:
-	import cupy as cp
-	from chainer import cuda
-	xp = cp
-	cuda.get_device(0).use()
-else:
-	import numpy as np
-	xp = np
 
 class Decoder(object):
 	def __init__(self, model, npz, vocab, decode_max_size, flag_gpu=False):
@@ -21,31 +11,37 @@ class Decoder(object):
 		self.client = language.LanguageServiceClient()
 		serializers.load_npz(npz, self.model)
 		if flag_gpu:
+			import cupy as cp
+			self.xp = cp
 			self.model.to_gpu(0)
+			cuda.get_device(0).use()
+		else:
+			import numpy as np
+			self.xp = np
 
-	def __call__(self, query, flag_gpu=False):
+	def __call__(self, query):
 		# モデルの勾配などをリセット
 		self.model.reset()
 		# userからの入力文をIDに変換
 		enc_query = self.sentence2ids(query)
 		# Numpy配列に変換
-		enc_query = xp.array([enc_query], dtype="int32")
+		enc_query = self.xp.array([enc_query], dtype="int32")
 		enc_query = enc_query.T
 		# エンコード時のバッチサイズ
 		encode_batch_size = len(enc_query[0])
 		# 発話リスト内の単語をVariable型に変更
-		enc_query = [Variable(xp.array(row, dtype='int32')) for row in enc_query]
+		enc_query = [Variable(self.xp.array(row, dtype='int32')) for row in enc_query]
 		# エンコードの計算
 		self.model.encode(enc_query, encode_batch_size)
 		# <eos>をデコーダーに読み込ませる
-		t = Variable(xp.array([0] * encode_batch_size, dtype='int32'))
+		t = Variable(self.xp.array([0] * encode_batch_size, dtype='int32'))
 		# デコーダーが生成する単語IDリスト
 		ys = []
 		for i in range(self.decode_max_size):
 			y = self.model.decode(t)
-			y = xp.argmax(y.data) # 確率で出力されたままなので、確率が高い予測単語を取得する
+			y = self.xp.argmax(y.data) # 確率で出力されたままなので、確率が高い予測単語を取得する
 			ys.append(y)
-			t = Variable(xp.array([y], dtype='int32'))
+			t = Variable(self.xp.array([y], dtype='int32'))
 			if y == 0: # <EOS>を出力したならばデコードを終了する
 				break
 		# IDから，文字列に変換する
