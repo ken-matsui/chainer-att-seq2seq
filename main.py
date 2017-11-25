@@ -52,7 +52,7 @@ def main():
 				# 指定のモデルデータを使用する．
 				num = FLAGS.select
 			npz = TRAIN_PATH + str(num) + ".npz"
-			print("Resume learning from", npz)
+			print("Resume training from", npz)
 		else:
 			try:
 				os.mkdir(TRAIN_PATH)
