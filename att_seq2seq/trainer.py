@@ -14,7 +14,7 @@ import slackweb
 dotenv_path = join(dirname(__file__), '../.env')
 load_dotenv(dotenv_path)
 slack = slackweb.Slack(os.environ.get("SLACK_WEBHOOK"))
-#         ここ！！！！！！！！！！！！npzの受け取り方改善したい！！！
+
 class Trainer(object):
 	def __init__(self, model, npz=None, flag_gpu=False):
 		self.model = model
@@ -35,8 +35,10 @@ class Trainer(object):
 		# Train Data と Test Data に分割
 		input_num = min(len(queries), len(responses))
 		input_num = int(input_num * 0.2) # input数の中から，２割をtest_numにする
-		test_queries, train_queries = self.xp.vstack(queries[:input_num]), self.xp.vstack(queries[input_num:])
-		test_responses, train_responses = self.xp.vstack(responses[:input_num]), self.xp.vstack(responses[input_num:])
+		test_queries = self.xp.vstack(self.xp.array(queries[:input_num]))
+		train_queries = self.xp.vstack(self.xp.array(queries[input_num:]))
+		test_responses = self.xp.vstack(self.xp.array(responses[:input_num]))
+		train_responses = self.xp.vstack(self.xp.array(responses[input_num:]))
 		teacher_num = min(len(train_queries), len(train_responses))
 		test_num = min(len(test_queries), len(test_responses))
 
