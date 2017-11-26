@@ -64,8 +64,6 @@ class Trainer(object):
 				dec_words = train_responses[perm[i:i+batch_size]].T
 				# エンコード時のバッチサイズ
 				encode_batch_size = len(enc_words[0])
-				# 発話リスト内の単語をVariable型に変更
-				enc_words = [Variable(self.xp.array(row, dtype='int32')) for row in enc_words]
 				# エンコードの計算
 				self.model.encode(enc_words, encode_batch_size)
 				# <eos>をデコーダーに読み込ませる
