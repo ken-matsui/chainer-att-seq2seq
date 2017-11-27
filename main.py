@@ -37,6 +37,8 @@ parser.add_argument('-ri', '--resid_file', default='./data/response_id.txt',
 					help="Directory to response file")
 parser.add_argument('-o', '--out', default='./result/',
 					help="Directory to output the result")
+parser.add_argument('--tag', default='',
+					help="TAG")
 parser.add_argument('-g', '--gpu', default=False, action='store_true',
 					help='GPU mode if this flag is set')
 FLAGS = parser.parse_args()
@@ -84,7 +86,8 @@ def main():
 					responses=responses,
 					train_path=FLAGS.out,
 					epoch_num=FLAGS.epoch,
-					batch_size=FLAGS.batchsize)
+					batch_size=FLAGS.batchsize,
+					tag=FLAGS.tag)
 	elif FLAGS.decode:
 		if FLAGS.select == 0:
 			# 最新のモデルデータを使用する．
