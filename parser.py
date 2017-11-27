@@ -56,12 +56,6 @@ def parse_vocab(vocab, words):
 	return vocab, ids
 
 def write2file(usrs, msgs, outfiles):
-	# 偶数でなければ，最後の要素を削除(最後は'ok'などの返事不要なものであると仮定)
-	if len(usrs) % 2 != 0:
-		del usrs[-1:]
-	if len(msgs) % 2 != 0:
-		del msgs[-1:]
-
 	# 初回以降はファイルから読み込む
 	if os.path.isfile(outfiles['vocab']):
 		with open(outfiles['vocab'], 'r') as f:
@@ -69,23 +63,48 @@ def write2file(usrs, msgs, outfiles):
 	else:
 		vocab = ['<eos>', '<unk>']
 
-	switch = True
+	# 前処理
+	data = list(map(list, zip(usrs, msgs)))
+	# 同一人物の連続した発話は除外
 	before_usr = ""
-	fq, fr = open(outfiles['que'], "a"), open(outfiles['res'], "a")
-	fqid, frid = open(outfiles['queid'], "a"), open(outfiles['resid'], "a")
-	for usr, msg in zip(usrs, msgs):
-		# 同一人物の連続した発話は除外
-		if (before_usr != usr) and not(is_bad_sentence(msg)):
-			msg = parse_sentence(msg)
-			# Stop wordsの影響で違反文になった場合終了
-			if not(is_bad_sentence("".join(msg))):
-				vocab, ids = parse_vocab(vocab, msg)
-				fq.write(",".join(msg) + '\n') if switch else fr.write(",".join(msg) + '\n')
-				fqid.write(ids) if switch else frid.write(ids)
-				before_usr = usr
-				switch = not(switch)
-	fq.close(), fr.close()
-	fqid.close(), frid.close()
+	for i, d in enumerate(data):
+		if before_usr == d[0]:
+			# popするとindexがずれるので，まず空にする
+			data[i] = ["", ""]
+			continue
+		before_usr = d[0]
+	# 違反文の排除
+	for i, d in enumerate(data):
+		if is_bad_sentence(d[1]):
+			data[i] = ["", ""]
+	# とりあえず削除
+	data = list(filter(lambda s: s[0] != "", data))
+	# StopWordsをかける
+	for i, d in enumerate(data):
+		data[i][1] = parse_sentence(d[1])
+		# Stop wordsの影響で違反文になった場合排除
+		if is_bad_sentence("".join(data[i][1])):
+			data[i] = ["", ""]
+	# 削除
+	data = list(filter(lambda s: s[0] != "", data))
+
+	# 偶数でなければ，最後の要素を削除(最後は'ok'などの返事不要なものであると仮定)
+	if len(data) % 2 != 0:
+		del data[-1:]
+
+	fq = open(outfiles['que'], "a")
+	fr = open(outfiles['res'], "a")
+	fqid = open(outfiles['queid'], "a")
+	frid = open(outfiles['resid'], "a")
+	for i, (usr, msg) in enumerate(data):
+		vocab, ids = parse_vocab(vocab, msg)
+		if i % 2 == 0:
+			fq.write(",".join(msg) + '\n')
+			fqid.write(ids)
+		else:
+			fr.write(",".join(msg) + '\n')
+			frid.write(ids)
+	fq.close(), fr.close(), fqid.close(), frid.close()
 
 	# 単語辞書の生成
 	with open(outfiles['vocab'], 'w') as f:
