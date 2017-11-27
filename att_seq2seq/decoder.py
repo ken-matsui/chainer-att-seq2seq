@@ -29,8 +29,6 @@ class Decoder(object):
 		enc_query = enc_query.T
 		# エンコード時のバッチサイズ
 		encode_batch_size = len(enc_query[0])
-		# 発話リスト内の単語をVariable型に変更
-		enc_query = [Variable(self.xp.array(row, dtype='int32')) for row in enc_query]
 		# エンコードの計算
 		self.model.encode(enc_query, encode_batch_size)
 		# <eos>をデコーダーに読み込ませる
