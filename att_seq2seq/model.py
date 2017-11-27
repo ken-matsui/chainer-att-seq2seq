@@ -143,7 +143,7 @@ class AttSeq2Seq(chainer.Chain):
 		:return:
 		'''
 		# 内部メモリ、中間ベクトルの初期化
-		xp = cuda.get_array_module(words.data)
+		xp = cuda.get_array_module(words)
 		# 発話リスト内の単語をrowで分割して，Variable型に変更
 		words = [Variable(xp.array(row, dtype='int32')) for row in words]
 		c = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
