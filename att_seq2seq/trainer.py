@@ -83,23 +83,6 @@ class Trainer(object):
 				opt.update()
 				total_loss += loss.data
 				total_accuracy += accuracy.data
-			# 評価計算
-			total_evaluation = 0
-			for j in range(0, test_num, batch_size):
-				perm = np.random.permutation(test_num)
-				self.model.reset()
-				enc_words = test_queries[perm[j:j+batch_size]].T
-				dec_words = test_responses[perm[j:j+batch_size]].T
-				encode_batch_size = len(enc_words[0])
-				self.model.encode(enc_words, encode_batch_size)
-				t = Variable(self.xp.array([0] * encode_batch_size, dtype='int32'))
-				# 評価の初期化
-				evaluation = Variable(self.xp.zeros((), dtype='float32'))
-				for w in dec_words:
-					y = self.model.decode(t)
-					t = Variable(self.xp.array(w, dtype='int32'))
-					evaluation += F.accuracy(y, t) # 評価の計算
-				total_evaluation += evaluation.data
 			if (epoch+1) % 10 == 0:
 				# モデルの保存
 				if self.flag_gpu: # modelをCPUでも使えるように
@@ -111,9 +94,8 @@ class Trainer(object):
 			epoch_data = "epoch: {}\ttag: {}\n".format(epoch + 1, tag)
 			loss_data = "\tloss: {}\n".format(round(float(total_loss),2))
 			accuracy_data = "\taccuracy: {}\n".format(round(float(total_accuracy),2))
-			evaluation_data = "\tevaluation: {}\n".format(round(float(total_evaluation),2))
 			time_data = "\ttime: {}".format(ed-st)
-			data = epoch_data + loss_data + accuracy_data + evaluation_data + time_data
+			data = epoch_data + loss_data + accuracy_data + time_data
 			slack.notify(text=data)
 			print(data)
 			st = datetime.datetime.now()
