@@ -2,10 +2,8 @@
 .DS_STORE
 
 data
-train
-raw/facebook
-raw/line/*
-raw/corpus/*
+result
+raw/*
 
 .env
 

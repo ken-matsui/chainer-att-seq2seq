@@ -5,6 +5,7 @@
 $ git clone $(This repository's URL)
 $ cd seq2seq/
 $ mv ~/Downloads/facebook-$(USER) ./raw/facebook
+$ mkdir ./raw/line
 $ mv ~/Downloads/\[LINE\]\ Chat\ with\ *.txt ./raw/line/
 ```
 
@@ -27,5 +28,6 @@ parser.pyだけmainと切り離されている．
 MeCabの辞書は，[mecab-ipadic-neologd](https://github.com/neologd/mecab-ipadic-neologd)を使用．
 
 ```
+$ mkdir ./raw/corpus
 $ mv ./make-meidai-dialogue/sequence.txt ./raw/corpus/
 ```
