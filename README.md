@@ -12,8 +12,30 @@ $ mkdir ./raw/corpus
 $ mv $(make-meidai-dialogue)/sequence.txt ./raw/corpus/
 
 $ python parse.py
+Parse facebook...
+Parse line...
+Parse corpus...
+done.
 $ python train.py
+GPU: True
+# Minibatch-size: 20
+# embed_size: 100
+# n_hidden: 100
+# epoch: 200
+
+Train
+epoch: 1	tag: big
+	loss: 108549.05
+	accuracy: 3658.35
+	time: 0:04:13.800777
+.
+.
+.
 $ python decode.py
+Interactive decode from ./result/30.npz
+> お元気ですか？
+元気です
+>
 ```
 
 ### Input data
