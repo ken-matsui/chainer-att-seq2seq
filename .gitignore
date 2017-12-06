@@ -5,9 +5,8 @@ data
 result
 raw/*
 
-.env
-
 !.gitkeep
 *.pyc
 __pycache__
 .python-version
+.env
