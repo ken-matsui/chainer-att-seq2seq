@@ -19,11 +19,11 @@ parser.add_argument('-p', '--parse', default=False, action='store_true',
 					help='Parse mode if this flag is set')
 parser.add_argument('-r', '--resume', default=False, action='store_true',
 					help="Resume mode if this flag is set")
-parser.add_argument('-e', '--epoch', type=int, default=500,
+parser.add_argument('-e', '--epoch', type=int, default=200,
 					help="Number of epoch")
-parser.add_argument('-es', '--embed_size', type=int, default=500,
+parser.add_argument('-es', '--embed_size', type=int, default=100,
 					help="Number of embed(vector) size")
-parser.add_argument('-n', '--n_hidden', type=int, default=500,
+parser.add_argument('-n', '--n_hidden', type=int, default=100,
 					help="Number of hidden units")
 parser.add_argument('-b', '--batchsize', type=int, default=20,
 					help="Number of batch size")
@@ -31,10 +31,8 @@ parser.add_argument('-dm', '--decode_max_size', type=int, default=15,
 					help="Number of decode max size") # デコードはEOSが出力されれば終了する、出力されない場合の最大出力語彙数
 parser.add_argument('-v', '--vocab_file', default='./data/vocab.txt',
 					help="Directory to vocab file")
-parser.add_argument('-qi', '--queid_file', default='./data/query_id.txt',
-					help="Directory to query file")
-parser.add_argument('-ri', '--resid_file', default='./data/response_id.txt',
-					help="Directory to response file")
+parser.add_argument('-i', '--infile', default='./data/data_id.txt',
+					help="Directory to id file")
 parser.add_argument('-o', '--out', default='./result/',
 					help="Directory to output the result")
 parser.add_argument('-s', '--select', type=int, default=0,
@@ -61,11 +59,12 @@ def main():
 	if FLAGS.train:
 		print('GPU: {}'.format(FLAGS.gpu))
 		print('# Minibatch-size: {}'.format(FLAGS.batchsize))
+		print('# embed_size: {}'.format(FLAGS.embed_size))
 		print('# n_hidden: {}'.format(FLAGS.n_hidden))
 		print('# epoch: {}'.format(FLAGS.epoch))
 		print('')
 		# 学習用データを読み込む
-		queries, responses = load_queres()
+		queries, responses = load_ids()
 		if FLAGS.resume:
 			if FLAGS.select == 0:
 				# 最新のモデルデータを使用する．
@@ -115,23 +114,29 @@ def load_vocab():
 		lines = f.readlines()
 	return list(map(lambda s: s.replace("\n", ""), lines))
 
-def load_queres():
+def load_ids():
 	# 対話データ(ID版)を取り出す
 	queries, responses = [], []
-	with open(FLAGS.queid_file, 'r') as fq, open(FLAGS.resid_file, 'r') as fr:
-		for q, r in zip(fq.readlines(), fr.readlines()):
+	with open(FLAGS.infile, 'r') as f:
+		for l in f.read().split('\n')[:-1]:
+			# queryとresponseで分割する
+			d = l.split('\t')
 			# ミニバッチ対応のため，単語数サイズを調整してNumpy変換する
-			query = list(map(int, q.replace('\n', '').split(',')))
-			queries.append(batch_ids(query))
-			respo = list(map(int, q.replace('\n', '').split(',')))
-			responses.append(batch_ids(respo))
+			queries.append(batch_ids(list(map(int, d[0].split(','))), "query"))
+			responses.append(batch_ids(list(map(int, d[1].split(','))), "response"))
 	return queries, responses
 
-def batch_ids(ids):
-	if len(ids) > FLAGS.decode_max_size: # ミニバッチ単語サイズになるように先頭から削る
-		del ids[0:len(ids) - FLAGS.decode_max_size]
-	else: # ミニバッチ単語サイズになるように先頭に付け足す
-		ids = ([-1] * (FLAGS.decode_max_size - len(ids))) + ids
+def batch_ids(ids, sentence_type):
+	if sentence_type == "query": # queryの場合は前方に-1を補填する
+		if len(ids) > FLAGS.decode_max_size: # ミニバッチ単語サイズになるように先頭から削る
+			del ids[0:len(ids) - FLAGS.decode_max_size]
+		else: # ミニバッチ単語サイズになるように前方に付け足す
+			ids = ([-1] * (FLAGS.decode_max_size - len(ids))) + ids
+	elif sentence_type == "response": # responseの場合は後方に-1を補填する
+		if len(ids) > FLAGS.decode_max_size: # ミニバッチ単語サイズになるように末尾から削る
+			del ids[FLAGS.decode_max_size:]
+		else: # ミニバッチ単語サイズになるように後方に付け足す
+			ids = ids + ([-1] * (FLAGS.decode_max_size - len(ids)))
 	return ids
 
 if __name__ == '__main__':
