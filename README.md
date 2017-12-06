@@ -9,7 +9,7 @@ $ mv ~/Downloads/facebook-$(USER) ./raw/facebook
 $ mkdir ./raw/line
 $ mv ~/Downloads/\[LINE\]\ Chat\ with\ *.txt ./raw/line/
 $ mkdir ./raw/corpus
-$ mv $(make-meidai-dialogue)/sequence.txt ./raw/corpus/
+$ mv ~/Downloads/make-meidai-dialogue/sequence.txt ./raw/corpus/
 
 $ python parse.py
 Parse facebook...
@@ -45,7 +45,7 @@ data = [["query data", "responce data"],
 	[..., ...], ...]
 ```
 
-### Important
+## Important
 parser.pyだけmainと切り離されている．
 
 同一人物の連続した発話は除外
