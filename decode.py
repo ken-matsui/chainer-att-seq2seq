@@ -1,6 +1,5 @@
 # coding: utf-8
 
-import os
 import argparse
 from glob import glob
 from os.path import relpath, splitext
