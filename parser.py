@@ -189,9 +189,9 @@ def main():
 	for line in line_files:
 		data.extend(parse_line(line))
 
-	# print("Parse corpus...")
-	# corpus = "./raw/corpus/sequence.txt"
-	# data.extend(parse_corpus(corpus))
+	print("Parse corpus...")
+	corpus = "./raw/corpus/sequence.txt"
+	data.extend(parse_corpus(corpus))
 
 	write2file(data, outfiles)
 	print("done.")
