@@ -15,8 +15,6 @@ group.add_argument('-t', '--train', default=False, action='store_true',
 				   help='Train mode if this flag is set')
 group.add_argument('-d', '--decode', default=False, action='store_true',
 				   help='Decode mode if this flag is set')
-parser.add_argument('-p', '--parse', default=False, action='store_true',
-					help='Parse mode if this flag is set')
 parser.add_argument('-r', '--resume', default=False, action='store_true',
 					help="Resume mode if this flag is set")
 parser.add_argument('-e', '--epoch', type=int, default=200,
@@ -45,10 +43,6 @@ FLAGS = parser.parse_args()
 
 
 def main():
-	if FLAGS.parse:
-		import parser
-		parser.main()
-
 	# 単語辞書の読み込み
 	vocab = load_vocab()
 	model = AttSeq2Seq(vocab_size=len(vocab),
