@@ -31,7 +31,7 @@ class Trainer(object):
 			self.xp = np
 		self.flag_gpu = flag_gpu
 
-	def fit(self, queries, responses, train_path, epoch_num=30, batch_size=40, tag=""):
+	def fit(self, queries, responses, train_path, epoch_num=30, batch_size=40, tag=None):
 		# Train Data と Test Data に分割
 		input_num = min(len(queries), len(responses))
 		input_num = int(input_num * 0.2) # input数の中から，２割をtest_numにする
@@ -91,7 +91,7 @@ class Trainer(object):
 				if self.flag_gpu:
 					self.model.to_gpu(0)
 			ed = datetime.datetime.now()
-			epoch_data = "epoch: {}\ttag: {}\n".format(epoch + 1, tag)
+			epoch_data = "epoch: {}\ttag: {}\n".format(epoch + 1, str(tag))
 			loss_data = "\tloss: {}\n".format(round(float(total_loss),2))
 			accuracy_data = "\taccuracy: {}\n".format(round(float(total_accuracy),2))
 			time_data = "\ttime: {}".format(ed-st)

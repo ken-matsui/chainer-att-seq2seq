@@ -17,13 +17,10 @@ parser.add_argument('-d', '--decode_max_size', type=int, default=15,
 					help="Number of decode max size") # デコードはEOSが出力されれば終了する、出力されない場合の最大出力語彙数
 parser.add_argument('-v', '--vocab_file', default='./data/vocab.txt',
 					help="Directory to vocab file")
-parser.add_argument('-i', '--infile', default='./data/data_id.txt',
-					help="Directory to id file")
 parser.add_argument('-o', '--out', default='./result/',
 					help="Directory to output the result")
 parser.add_argument('-s', '--select', type=int, default=0,
 					help="Select npz file.")
-parser.add_argument('-t', '--tag', default='', help="TAG")
 parser.add_argument('-g', '--gpu', default=False, action='store_true',
 					help='GPU mode if this flag is set')
 FLAGS = parser.parse_args()
@@ -59,18 +56,6 @@ def load_vocab():
 	with open(FLAGS.vocab_file, 'r') as f:
 		lines = f.readlines()
 	return list(map(lambda s: s.replace("\n", ""), lines))
-
-def load_ids():
-	# 対話データ(ID版)を取り出す
-	queries, responses = [], []
-	with open(FLAGS.infile, 'r') as f:
-		for l in f.read().split('\n')[:-1]:
-			# queryとresponseで分割する
-			d = l.split('\t')
-			# ミニバッチ対応のため，単語数サイズを調整してNumpy変換する
-			queries.append(batch_ids(list(map(int, d[0].split(','))), "query"))
-			responses.append(batch_ids(list(map(int, d[1].split(','))), "response"))
-	return queries, responses
 
 def batch_ids(ids, sentence_type):
 	if sentence_type == "query": # queryの場合は前方に-1を補填する
