@@ -40,7 +40,8 @@ def parse_sentence(sentence):
 	for m in MECAB.parse(sentence).split("\n"): # 単語に分解する
 		w = m.split("\t")[0].lower() # 単語
 		# stop wordsによる無駄な文字の排除
-		if (w not in STOP_WORDS) and (w != "eos"):
+		# if (w not in STOP_WORDS) and (w != "eos"):
+		if w != "eos":
 			words.append(w)
 	return words
 
@@ -51,28 +52,11 @@ def parse_vocab(vocab, words):
 		if w not in vocab:
 			vocab.append(w)
 		ids.append(str(vocab.index(w)))
-	ids = ",".join(ids) + "\n"
+	ids = ",".join(ids)
 
 	return vocab, ids
 
-def write2file(usrs, msgs, outfiles):
-	# 初回以降はファイルから読み込む
-	if os.path.isfile(outfiles['vocab']):
-		with open(outfiles['vocab'], 'r') as f:
-			vocab = list(map(lambda s: s.strip(), f.readlines()))
-	else:
-		vocab = ['<eos>', '<unk>']
-
-	# 前処理
-	data = list(map(list, zip(usrs, msgs)))
-	# 同一人物の連続した発話は除外
-	before_usr = ""
-	for i, d in enumerate(data):
-		if before_usr == d[0]:
-			# popするとindexがずれるので，まず空にする
-			data[i] = ["", ""]
-			continue
-		before_usr = d[0]
+def preprocess(data):
 	# 違反文の排除
 	for i, d in enumerate(data):
 		if is_bad_sentence(d[1]):
@@ -85,28 +69,38 @@ def write2file(usrs, msgs, outfiles):
 		# Stop wordsの影響で違反文になった場合排除
 		if is_bad_sentence("".join(data[i][1])):
 			data[i] = ["", ""]
-	# 削除
+	data = list(filter(lambda s: s[0] != "", data))
+	# 同一人物の連続した発話は除外
+	before_usr = ""
+	for i, d in enumerate(data):
+		if before_usr == d[0]:
+			# popするとindexがずれるので，まず空にする
+			data[i] = ["", ""]
+			continue
+		before_usr = d[0]
 	data = list(filter(lambda s: s[0] != "", data))
 
 	# 偶数でなければ，最後の要素を削除(最後は'ok'などの返事不要なものであると仮定)
 	if len(data) % 2 != 0:
 		del data[-1:]
+	return data
 
-	fq = open(outfiles['que'], "a")
-	fr = open(outfiles['res'], "a")
-	fqid = open(outfiles['queid'], "a")
-	frid = open(outfiles['resid'], "a")
-	for i, (usr, msg) in enumerate(data):
-		vocab, ids = parse_vocab(vocab, msg)
-		if i % 2 == 0:
-			fq.write(",".join(msg) + '\n')
-			fqid.write(ids)
-		else:
-			fr.write(",".join(msg) + '\n')
-			frid.write(ids)
-	fq.close(), fr.close(), fqid.close(), frid.close()
-
-	# 単語辞書の生成
+def write2file(data, outfiles):
+	# 1回のみ処理
+	vocab = ['<eos>', '<unk>']
+	# 前処理
+	data = preprocess(data)
+	# 書き込みと，単語辞書の生成
+	with open(outfiles['data'], "w") as f, open(outfiles['dataid'], "w") as fid:
+		for i, (usr, msg) in enumerate(data):
+			vocab, ids = parse_vocab(vocab, msg)
+			if i % 2 == 0:
+				f.write(",".join(msg) + '\t')
+				fid.write(ids + '\t')
+			else:
+				f.write(",".join(msg) + '\n')
+				fid.write(ids + '\n')
+	# 単語辞書ファイルの生成
 	with open(outfiles['vocab'], 'w') as f:
 		for v in vocab:
 			f.write(v + '\n')
@@ -118,16 +112,16 @@ def find_data(soup, tag, class_=None):
 	datas.reverse()
 	return datas
 
-def parse_fb(in_file, outfiles):
+def parse_fb(in_file):
 	with open(in_file, "r") as f:
 		soup = BeautifulSoup(f.read(), "html.parser")
 
 	usrs = find_data(soup, "span", "user")
 	msgs = find_data(soup, "p")
 
-	write2file(usrs, msgs, outfiles)
+	return list(map(list, zip(usrs, msgs)))
 
-def parse_line(in_file, outfiles):
+def parse_line(in_file):
 	with open(in_file, "r") as f:
 		lines = f.readlines()
 
@@ -140,9 +134,9 @@ def parse_line(in_file, outfiles):
 				usrs.append(line_list[1])
 				msgs.append(line_list[2].strip().lstrip('"'))
 
-	write2file(usrs, msgs, outfiles)
+	return list(map(list, zip(usrs, msgs)))
 
-def parse_corpus(in_file, outfiles):
+def parse_corpus(in_file):
 	with open(in_file, "r") as f:
 		lines = f.readlines()
 
@@ -168,46 +162,38 @@ def parse_corpus(in_file, outfiles):
 		msg = re_asterisk.sub("", msg)
 		msgs.append(msg)
 
-	write2file(usrs, msgs, outfiles)
+	return list(map(list, zip(usrs, msgs)))
 
 def main():
 	outdir = "./data/"
-	outfiles = {'que': outdir+"query.txt",
-				'res': outdir+"response.txt",
-				'queid': outdir+"query_id.txt",
-				'resid': outdir+"response_id.txt",
+	outfiles = {'data': outdir+"data.txt",
+				'dataid': outdir+"data_id.txt",
 				'vocab': outdir+"vocab.txt"}
 	try:
 		os.mkdir(outdir)
-	except: # ディレクトリが存在する時
-		try:
-			# 追記モードなので事前に削除しておく
-			os.remove(outfiles['que'])
-			os.remove(outfiles['res'])
-			os.remove(outfiles['queid'])
-			os.remove(outfiles['resid'])
-			os.remove(outfiles['vocab'])
-		except:
-			pass
+	except:
+		pass
+
+	# [[usrs], [msgs]]
+	data = []
 
 	print("Parse facebook...")
 	fb_dir = "./raw/facebook/messages/"
 	fb_files = list(map(lambda s: fb_dir + s, os.listdir(fb_dir)))
 	for fb in fb_files:
-		parse_fb(fb, outfiles)
+		data.extend(parse_fb(fb))
 
 	print("Parse line...")
 	line_dir = "./raw/line/"
-	listdir = os.listdir(line_dir)
-	listdir.remove(".gitkeep")
-	line_files = list(map(lambda s: line_dir + s, listdir))
+	line_files = list(map(lambda s: line_dir + s, os.listdir(line_dir)))
 	for line in line_files:
-		parse_line(line, outfiles)
+		data.extend(parse_line(line))
 
-	print("Parse corpus...")
-	corpus = "./raw/corpus/sequence.txt"
-	parse_corpus(corpus, outfiles)
+	# print("Parse corpus...")
+	# corpus = "./raw/corpus/sequence.txt"
+	# data.extend(parse_corpus(corpus))
 
+	write2file(data, outfiles)
 	print("done.")
 
 if __name__ == '__main__':
