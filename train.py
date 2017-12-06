@@ -29,7 +29,7 @@ parser.add_argument('-o', '--out', default='./result/',
 					help="Directory to output the result")
 parser.add_argument('-s', '--select', type=int, default=0,
 					help="Select npz file.")
-parser.add_argument('-t', '--tag', default='', help="TAG")
+parser.add_argument('-t', '--tag', default=None, help="TAG")
 parser.add_argument('-g', '--gpu', default=False, action='store_true',
 					help='GPU mode if this flag is set')
 FLAGS = parser.parse_args()
