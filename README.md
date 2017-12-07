@@ -24,7 +24,7 @@ GPU: True
 # epoch: 200
 
 Train
-epoch: 1	tag: big
+epoch: 1	tag: bigdata
 	loss: 108549.05
 	accuracy: 3658.35
 	time: 0:04:13.800777
@@ -46,8 +46,6 @@ data = [["query data", "responce data"],
 ```
 
 ## Important
-parser.pyだけmainと切り離されている．
-
 同一人物の連続した発話は除外
 
 [日本語自然会話書き起こしコーパス（旧名大会話コーパス）](http://mmsrv.ninjal.ac.jp/nucc/)を使用
