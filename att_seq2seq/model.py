@@ -3,7 +3,7 @@
 import chainer
 import chainer.functions as F
 import chainer.links as L
-from chainer import Variable, cuda
+from chainer import cuda
 
 __all__ = ['AttSeq2Seq']
 
@@ -95,7 +95,7 @@ class Attention(chainer.Chain):
 		batch_size = h.data.shape[0]
 		# weight
 		ws = []
-		sum_w = Variable(xp.zeros((batch_size, 1), dtype='float32')) # ウェイトの合計値を計算するための値を初期化
+		sum_w = xp.zeros((batch_size, 1), dtype='float32') # ウェイトの合計値を計算するための値を初期化
 		# Encoderの中間ベクトルとDecoderの中間ベクトルを使ってウェイトの計算
 		for f, b in zip(fs, bs):
 			w = F.tanh(self.fh(f)+self.bh(b)+self.hh(h)) # 順向きEncoderの中間ベクトル、逆向きEncoderの中間ベクトル、Decoderの中間ベクトルを使ってウェイトの計算
@@ -103,8 +103,8 @@ class Attention(chainer.Chain):
 			ws.append(w) # 計算したウェイトを記録
 			sum_w += w
 		# 出力する加重平均ベクトルの初期化
-		att_f = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
-		att_b = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
+		att_f = xp.zeros((batch_size, self.hidden_size), dtype='float32')
+		att_b = xp.zeros((batch_size, self.hidden_size), dtype='float32')
 		for f, b, w in zip(fs, bs, ws):
 			w /= sum_w # ウェイトの和が1になるように正規化
 			# ウェイト * Encoderの中間ベクトルを出力するベクトルに足していく
@@ -144,24 +144,24 @@ class AttSeq2Seq(chainer.Chain):
 		'''
 		# 内部メモリ、中間ベクトルの初期化
 		xp = cuda.get_array_module(words)
-		# 発話リスト内の単語をrowで分割して，Variable型に変更
-		words = [Variable(xp.array(row, dtype='int32')) for row in words]
-		c = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
-		h = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
+		# 発話リスト内の単語をrowで分割
+		words = [xp.array(row, dtype='int32') for row in words]
+		c = xp.zeros((batch_size, self.hidden_size), dtype='float32')
+		h = xp.zeros((batch_size, self.hidden_size), dtype='float32')
 		# 順向きのEncoderの計算
 		for w in words:
 			c, h = self.f_encoder(w, c, h)
 			self.fs.append(h) # 計算された中間ベクトルを記録
 		# 内部メモリ、中間ベクトルの初期化
-		c = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
-		h = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
+		c = xp.zeros((batch_size, self.hidden_size), dtype='float32')
+		h = xp.zeros((batch_size, self.hidden_size), dtype='float32')
 		# 逆向きのEncoderの計算
 		for w in reversed(words):
 			c, h = self.b_encoder(w, c, h)
 			self.bs.insert(0, h) # 計算された中間ベクトルを記録
 		# 内部メモリ、中間ベクトルの初期化
-		self.c = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
-		self.h = Variable(xp.zeros((batch_size, self.hidden_size), dtype='float32'))
+		self.c = xp.zeros((batch_size, self.hidden_size), dtype='float32')
+		self.h = xp.zeros((batch_size, self.hidden_size), dtype='float32')
 
 	def decode(self, w):
 		'''

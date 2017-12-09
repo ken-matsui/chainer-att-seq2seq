@@ -56,7 +56,7 @@ def load_vocab():
 		lines = f.readlines()
 	return list(map(lambda s: s.replace("\n", ""), lines))
 
-def batch_ids(ids, sentence_type):
+def batch_ids(ids, sentence_type): # バッチサイズの固定ベクトルに変換する
 	if sentence_type == "query": # queryの場合は前方に-1を補填する
 		if len(ids) > FLAGS.decode_max_size: # ミニバッチ単語サイズになるように先頭から削る
 			del ids[0:len(ids) - FLAGS.decode_max_size]

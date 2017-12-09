@@ -6,7 +6,7 @@ import datetime
 from os.path import join, dirname
 
 import chainer.functions as F
-from chainer import optimizer, optimizers, serializers, Variable, cuda
+from chainer import optimizer, optimizers, serializers, cuda
 import numpy as np
 from dotenv import load_dotenv
 import slackweb
@@ -34,13 +34,13 @@ class Trainer(object):
 	def fit(self, queries, responses, train_path, epoch_num=30, batch_size=40, tag=None):
 		# Train Data と Test Data に分割
 		input_num = min(len(queries), len(responses))
-		input_num = int(input_num * 0.2) # input数の中から，２割をtest_numにする
-		test_queries = self.xp.vstack(self.xp.array(queries[:input_num]))
+		# input_num = int(input_num * 0.2) # input数の中から，２割をtest_numにする
+		# test_queries = self.xp.vstack(self.xp.array(queries[:input_num]))
 		train_queries = self.xp.vstack(self.xp.array(queries[input_num:]))
-		test_responses = self.xp.vstack(self.xp.array(responses[:input_num]))
+		# test_responses = self.xp.vstack(self.xp.array(responses[:input_num]))
 		train_responses = self.xp.vstack(self.xp.array(responses[input_num:]))
 		teacher_num = min(len(train_queries), len(train_responses))
-		test_num = min(len(test_queries), len(test_responses))
+		# test_num = min(len(test_queries), len(test_responses))
 
 		opt = optimizers.Adam()
 		opt.setup(self.model)
@@ -67,15 +67,15 @@ class Trainer(object):
 				# エンコードの計算
 				self.model.encode(enc_words, encode_batch_size)
 				# <eos>をデコーダーに読み込ませる
-				t = Variable(self.xp.array([0] * encode_batch_size, dtype='int32'))
+				t = self.xp.array([0] * encode_batch_size, dtype='int32')
 				# 損失の初期化
-				loss = Variable(self.xp.zeros((), dtype='float32'))
+				loss = self.xp.zeros((), dtype='float32')
 				# 精度の初期化
-				accuracy = Variable(self.xp.zeros((), dtype='float32'))
+				accuracy = self.xp.zeros((), dtype='float32')
 				# １単語ずつデコードする
 				for w in dec_words:
 					y = self.model.decode(t)
-					t = Variable(self.xp.array(w, dtype='int32')) # 正解単語をVariable型に変換
+					t = self.xp.array(w, dtype='int32') # 正解単語をarrayに変換
 					loss += F.softmax_cross_entropy(y, t) # 正解単語と予測単語を照らし合わせて損失を計算
 					accuracy += F.accuracy(y, t) # 精度の計算
 				loss.backward()
