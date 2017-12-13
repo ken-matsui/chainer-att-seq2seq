@@ -5,6 +5,8 @@ data
 result
 raw/*
 
+parse
+
 !.gitkeep
 *.pyc
 __pycache__

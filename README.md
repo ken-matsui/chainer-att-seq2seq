@@ -53,3 +53,13 @@ data = [["query data", "responce data"],
 その`sequence.txt`ファイルだけ，`raw/corpus/`に移動させて使用する．
 
 MeCabの辞書は，[mecab-ipadic-neologd](https://github.com/neologd/mecab-ipadic-neologd)を使用．
+
+# CPP
+
+mecabのインストールは，[mecab-ipadic-neologd](https://github.com/neologd/mecab-ipadic-neologd)を参考にインストールしてください．
+
+:warning: -lboost_filesystemオプションは，昔の記事だと，-lboost-filesystemとなっている場合が多いですが，-lboost_filesystemが正しいです，
+
+```
+$ g++ -std=c++1z -O3 -mtune=native -march=native -I/usr/local/Cellar/boost/1.65.1 -L/usr/local/Cellar/boost/1.65.1/lib/ -lboost_filesystem -lboost_system `mecab-config --cflags` `mecab-config --libs` -o parse parse.cpp
+```

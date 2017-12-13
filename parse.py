@@ -2,6 +2,8 @@
 
 import os
 import re
+import time
+import codecs
 from urllib.request import urlopen
 
 import MeCab
@@ -113,7 +115,7 @@ def find_data(soup, tag, class_=None):
 	return datas
 
 def parse_fb(in_file):
-	with open(in_file, "r") as f:
+	with codecs.open(in_file, "r", "utf-8", "ignore") as f:
 		soup = BeautifulSoup(f.read(), "html.parser")
 
 	usrs = find_data(soup, "span", "user")
@@ -122,7 +124,7 @@ def parse_fb(in_file):
 	return list(map(list, zip(usrs, msgs)))
 
 def parse_line(in_file):
-	with open(in_file, "r") as f:
+	with codecs.open(in_file, "r", "utf-8", "ignore") as f:
 		lines = f.readlines()
 
 	usrs = []
@@ -165,9 +167,11 @@ def parse_corpus(in_file):
 	return list(map(list, zip(usrs, msgs)))
 
 def main():
+	start = time.time()
+
 	outdir = "./data/"
 	outfiles = {'data': outdir+"data.txt",
-				'dataid': outdir+"data_id.txt",
+				'dataid': outdir+"dataid.txt",
 				'vocab': outdir+"vocab.txt"}
 	try:
 		os.mkdir(outdir)
@@ -177,24 +181,30 @@ def main():
 	# [[usrs], [msgs]]
 	data = []
 
-	print("Parse facebook...")
-	fb_dir = "./raw/facebook/messages/"
-	fb_files = list(map(lambda s: fb_dir + s, os.listdir(fb_dir)))
-	for fb in fb_files:
-		data.extend(parse_fb(fb))
-
-	print("Parse line...")
+	print("Start parse of line...")
 	line_dir = "./raw/line/"
 	line_files = list(map(lambda s: line_dir + s, os.listdir(line_dir)))
 	for line in line_files:
 		data.extend(parse_line(line))
+	print("End parse of line.\n")
 
-	print("Parse corpus...")
-	corpus = "./raw/corpus/sequence.txt"
-	data.extend(parse_corpus(corpus))
+	print("Start parse of facebook...")
+	fb_dir = "./raw/facebook/messages/"
+	fb_files = list(map(lambda s: fb_dir + s, os.listdir(fb_dir)))
+	for fb in fb_files:
+		data.extend(parse_fb(fb))
+	print("End parse of facebook.\n")
+
+
+	# print("Parse corpus...")
+	# corpus = "./raw/corpus/sequence.txt"
+	# data.extend(parse_corpus(corpus))
 
 	write2file(data, outfiles)
 	print("done.")
+
+	end = time.time()
+	print("It took ", str((end - start) * 1000), "ms.")
 
 if __name__ == '__main__':
 	main()
