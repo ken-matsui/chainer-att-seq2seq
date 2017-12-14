@@ -23,7 +23,7 @@ parser.add_argument('-d', '--decode_max_size', type=int, default=15,
 					help="Number of decode max size") # デコードはEOSが出力されれば終了する、出力されない場合の最大出力語彙数
 parser.add_argument('-v', '--vocab_file', default='./data/vocab.txt',
 					help="Directory to vocab file")
-parser.add_argument('-i', '--infile', default='./data/data_id.txt',
+parser.add_argument('-i', '--infile', default='./data/dataid.txt',
 					help="Directory to id file")
 parser.add_argument('-o', '--out', default='./result/',
 					help="Directory to output the result")
@@ -90,8 +90,8 @@ def load_ids():
 			# queryとresponseで分割する
 			d = l.split('\t')
 			# ミニバッチ対応のため，単語数サイズを調整してNumpy変換する
-			queries.append(batch_ids(list(map(int, d[0].split(','))), "query"))
-			responses.append(batch_ids(list(map(int, d[1].split(','))), "response"))
+			queries.append(batch_ids(list(map(int, d[0].split(',')[:-1])), "query"))
+			responses.append(batch_ids(list(map(int, d[1].split(',')[:-1])), "response"))
 	return queries, responses
 
 def batch_ids(ids, sentence_type):
