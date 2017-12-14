@@ -85,6 +85,6 @@ Known Templates:
 "System Usage"
 "Time Profiler"
 "Zombies"
-$ instruments -l 10000 -t "Time Profiler" ./parse
+$ instruments -t "Time Profiler" -l 10000 ./parse
 $ open ./instrumentscli0.trace
 ```
