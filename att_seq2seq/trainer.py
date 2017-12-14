@@ -32,15 +32,9 @@ class Trainer(object):
 		self.flag_gpu = flag_gpu
 
 	def fit(self, queries, responses, train_path, epoch_num=30, batch_size=40, tag=None):
-		# Train Data と Test Data に分割
-		input_num = min(len(queries), len(responses))
-		# input_num = int(input_num * 0.2) # input数の中から，２割をtest_numにする
-		# test_queries = self.xp.vstack(self.xp.array(queries[:input_num]))
-		train_queries = self.xp.vstack(self.xp.array(queries[input_num:]))
-		# test_responses = self.xp.vstack(self.xp.array(responses[:input_num]))
-		train_responses = self.xp.vstack(self.xp.array(responses[input_num:]))
+		train_queries = self.xp.vstack(self.xp.array(queries))
+		train_responses = self.xp.vstack(self.xp.array(responses))
 		teacher_num = min(len(train_queries), len(train_responses))
-		# test_num = min(len(test_queries), len(test_responses))
 
 		opt = optimizers.Adam()
 		opt.setup(self.model)
