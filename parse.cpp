@@ -2,11 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <array>
 #include <vector>
 #include <memory>
 #include <algorithm>
-#include <set>
 #include <chrono>
 #include <iterator>
 
@@ -17,7 +15,6 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/range/algorithm/for_each.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 #include <boost/algorithm/string/classification.hpp> // is_space()
 
@@ -27,6 +24,37 @@
 // Debug
 #include <typeinfo> // typeid( obj ).name()
 
+
+void make_data(std::vector<std::string>& word_list,
+			   std::string& dialogue,
+			   std::string& ids,
+			   std::vector<std::string>& vocab)
+{
+	// Make unique vocabulary, and Make list word to ID.
+	for (const std::string& word : word_list) {
+		if(!word.empty()) {
+			auto itr = std::find(vocab.begin(), vocab.end(), word);
+			std::size_t index = std::distance(vocab.begin(), itr);
+			if(index != vocab.size()) { // vocabに既に含まれている時
+				ids += std::to_string(index) + ",";
+			}
+			else { // 未登録の時
+				ids += std::to_string(vocab.size()) + ",";
+				vocab.push_back(word);
+			}
+			dialogue += word + ",";
+		}
+	}
+}
+
+void split_mecab(const std::unique_ptr<MeCab::Tagger>&& tagger,
+				std::string& input,
+				std::vector<std::string>& output)
+{
+	// tagger->parse is <const char *>
+	const std::string&& result = tagger->parse( input.data() );
+	boost::algorithm::split(output, result, boost::is_space());
+}
 
 void readlines(std::vector<std::string>& lines,
 			   const boost::filesystem::path&& path)
@@ -90,25 +118,9 @@ void parse_line(const boost::filesystem::path&& path,
 				dialogue = "";
 				before_user = match_user;
 			}
-
-			std::string result{ tagger->parse( match_msg.data() ) };
-			std::vector<std::string> ms;
-			boost::algorithm::split(ms, result, boost::is_space());
-			// Make unique vocabulary, and Make list word to ID
-			for (const std::string& m : ms) {
-				if(!m.empty()) {
-					auto itr = std::find(vocab.begin(), vocab.end(), m);
-					std::size_t index = std::distance(vocab.begin(), itr);
-					if(index != vocab.size()) { // vocabに既に含まれている時
-						ids += std::to_string(index) + ",";
-					}
-					else { // 未登録の時
-						ids += std::to_string(vocab.size()) + ",";
-						vocab.push_back(m);
-					}
-					dialogue += m + ",";
-				}
-			}
+			std::vector<std::string> word_list;
+			split_mecab(std::move(tagger), match_msg, word_list);
+			make_data(word_list, dialogue, ids, vocab);
 		}
 	}
 	// 最後はどうせ，ok的な，返信不要なもの．と仮定する．
@@ -160,25 +172,9 @@ void parse_fb(const boost::filesystem::path&& path,
 				dialogue = "";
 				before_user = users[msg.index()];
 			}
-
-			std::string result{ tagger->parse( msg.value().data() ) };
-			std::vector<std::string> ms;
-			boost::algorithm::split(ms, result, boost::is_space());
-			// Make unique vocabulary, and Make list word to ID
-			for (const std::string& m : ms) {
-				if(!m.empty()) {
-					auto itr = std::find(vocab.begin(), vocab.end(), m);
-					std::size_t index = std::distance(vocab.begin(), itr);
-					if(index != vocab.size()) { // vocabに既に含まれている時
-						ids += std::to_string(index) + ",";
-					}
-					else { // 未登録の時
-						ids += std::to_string(vocab.size()) + ",";
-						vocab.push_back(m);
-					}
-					dialogue += m + ",";
-				}
-			}
+			std::vector<std::string> word_list;
+			split_mecab(std::move(tagger), msg.value(), word_list);
+			make_data(word_list, dialogue, ids, vocab);
 		}
 	}
 	// 最後はどうせ，ok的な，返信不要なもの．と仮定する．
