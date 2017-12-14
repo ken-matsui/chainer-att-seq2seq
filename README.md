@@ -46,8 +46,6 @@ data = [["query data", "responce data"],
 ```
 
 ## Important
-同一人物の連続した発話は除外
-
 [日本語自然会話書き起こしコーパス（旧名大会話コーパス）](http://mmsrv.ninjal.ac.jp/nucc/)を使用
 その後，parseには，[make-meidai-dialogue](https://github.com/knok/make-meidai-dialogue)を使用．
 その`sequence.txt`ファイルだけ，`raw/corpus/`に移動させて使用する．
@@ -63,4 +61,30 @@ mecabのインストールは，[mecab-ipadic-neologd](https://github.com/neolog
 **Ex. compile options**
 ```
 $ g++ -std=c++1z -O3 -mtune=native -march=native -I/usr/local/Cellar/boost/1.65.1 -L/usr/local/Cellar/boost/1.65.1/lib/ -lboost_filesystem -lboost_system `mecab-config --cflags` `mecab-config --libs` -o parse parse.cpp
+```
+
+**速度検証**
+```
+$ instruments -s
+...
+Known Templates:
+"Activity Monitor"
+"Allocations"
+"Blank"
+"Cocoa Layout"
+"Core Animation"
+"Core Data"
+"Counters"
+"Energy Log"
+"File Activity"
+"Leaks"
+"Metal System Trace"
+"Network"
+"SceneKit"
+"System Trace"
+"System Usage"
+"Time Profiler"
+"Zombies"
+$ instruments -l 10000 -t "Time Profiler" ./parse
+$ open ./instrumentscli0.trace
 ```
