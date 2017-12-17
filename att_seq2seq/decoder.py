@@ -2,13 +2,17 @@
 
 from chainer import serializers, cuda
 from google.cloud import language
+import MeCab
 
 class Decoder(object):
 	def __init__(self, model, npz, vocab, decode_max_size, flag_gpu=False):
 		self.model = model
 		self.vocab = vocab
 		self.decode_max_size = decode_max_size
-		self.client = language.LanguageServiceClient()
+
+		# self.client = language.LanguageServiceClient()
+		self.mecab = MeCab.Tagger('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
+
 		serializers.load_npz(npz, self.model)
 		if flag_gpu:
 			import cupy as cp
@@ -59,20 +63,27 @@ class Decoder(object):
 		'''
 		# Natural Language API
 		# The text to analyze
-		document = language.types.Document(
-			content=sentence,
-			type=language.enums.Document.Type.PLAIN_TEXT
-		)
-		# Detects syntax in the document. You can also analyze HTML with:
-		#   document.type == enums.Document.Type.HTML
-		tokens = self.client.analyze_syntax(document).tokens
+		# document = language.types.Document(
+		# 	content=sentence,
+		# 	type=language.enums.Document.Type.PLAIN_TEXT
+		# )
+		# # Detects syntax in the document. You can also analyze HTML with:
+		# #   document.type == enums.Document.Type.HTML
+		# tokens = self.client.analyze_syntax(document).tokens
 
 		sentence_words = []
-		for token in tokens:
-			w = token.text.content # 単語
-			if len(w) != 0: # 不正文字は省略
-				sentence_words.append(w)
-		sentence_words.append("<eos>") # 最後にvocabに登録している<eos>を代入する
+		# for token in tokens:
+		# 	w = token.text.content # 単語
+		# 	if len(w) != 0: # 不正文字は省略
+		# 		sentence_words.append(w)
+		# sentence_words.append("<eos>") # 最後にvocabに登録している<eos>を代入する
+		for m in self.mecab.parse(sentence).split("\n"):
+			w = m.split("\t")[0].lower()
+			if (len(w) == 0) or (w == "eos"):
+				continue
+			sentence_words.append(w)
+		sentence_words.append("<eos>")
+
 		return sentence_words
 
 	def sentence2ids(self, sentence):
