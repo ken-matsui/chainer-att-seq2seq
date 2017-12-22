@@ -40,7 +40,7 @@ void make_data(std::vector<std::string>& word_list,
 			}
 			else { // 未登録の時
 				ids += std::to_string(vocab.size()) + ",";
-				vocab.push_back(word);
+				vocab.emplace_back(word);
 			}
 			dialogue += word + ",";
 		}
@@ -66,7 +66,7 @@ void readlines(std::vector<std::string>& lines,
 			std::string line;
 			while(getline(ifs, line))
 				if (line.size() != 1)
-					lines.push_back(line);
+					lines.emplace_back(line);
 		}
 	}
 }
@@ -113,7 +113,7 @@ void parse_line(const boost::filesystem::path&& path,
 				before_user = match_user;
 			}
 			else if(before_user != match_user) {
-				datas.push_back(std::vector<std::string>{ before_user, dialogue, ids });
+				datas.emplace_back(std::vector<std::string>{ before_user, dialogue, ids });
 				ids = "";
 				dialogue = "";
 				before_user = match_user;
@@ -124,7 +124,7 @@ void parse_line(const boost::filesystem::path&& path,
 		}
 	}
 	// 最後はどうせ，ok的な，返信不要なもの．と仮定する．
-	// datas.push_back(std::vector<std::string>{ before_user, dialogue, ids });
+	// datas.emplace_back(std::vector<std::string>{ before_user, dialogue, ids });
 }
 
 void parse_fb(const boost::filesystem::path&& path,
@@ -167,7 +167,7 @@ void parse_fb(const boost::filesystem::path&& path,
 				before_user = users[msg.index()];
 			}
 			else if(before_user != users[msg.index()]) {
-				datas.push_back(std::vector<std::string>{ before_user, dialogue, ids });
+				datas.emplace_back(std::vector<std::string>{ before_user, dialogue, ids });
 				ids = "";
 				dialogue = "";
 				before_user = users[msg.index()];
@@ -178,7 +178,7 @@ void parse_fb(const boost::filesystem::path&& path,
 		}
 	}
 	// 最後はどうせ，ok的な，返信不要なもの．と仮定する．
-	// datas.push_back(std::vector<std::string>{ before_user, dialogue, ids });
+	// datas.emplace_back(std::vector<std::string>{ before_user, dialogue, ids });
 }
 
 void write2files(const boost::filesystem::path path,
