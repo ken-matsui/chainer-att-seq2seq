@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <chrono>
 #include <iterator>
+// #include <string_view>
 
 // Outside
 #include <mecab.h>
@@ -19,9 +20,9 @@
 #include <boost/algorithm/string/classification.hpp> // is_space()
 
 // Made me
-#include "htmlparser.hpp"
+#include <htmlparser.hpp>
 
-// Debug
+// Debug(Inside)
 #include <typeinfo> // typeid( obj ).name()
 
 
@@ -56,17 +57,29 @@ void split_mecab(const std::unique_ptr<MeCab::Tagger>&& tagger,
 	boost::algorithm::split(output, result, boost::is_space());
 }
 
-void readlines(std::vector<std::string>& lines,
-			   const boost::filesystem::path&& path)
+void readlines(std::vector<std::string>& lines, const boost::filesystem::path&& path)
 {
 	namespace fs = boost::filesystem;
-	for(const auto& e : boost::make_iterator_range(fs::directory_iterator(path), {})) {
-		if(!fs::is_directory( e )) {
-			std::ifstream ifs( path.string() + e.path().filename().string() );
+	for (const auto& e : boost::make_iterator_range(fs::directory_iterator(path), {})) {
+		if (!fs::is_directory( e )) {
+			std::ifstream ifs( e.path().string() );
 			std::string line;
-			while(getline(ifs, line))
+			while (getline(ifs, line))
 				if (line.size() != 1)
 					lines.emplace_back(line);
+		}
+	}
+}
+void readlines(std::string& lines, const boost::filesystem::path&& path)
+{
+	namespace fs = boost::filesystem;
+	for (const auto& e : boost::make_iterator_range(fs::directory_iterator(path), {})) {
+		if (!fs::is_directory( e )) {
+			std::ifstream ifs( e.path().string() );
+			std::string line;
+			while (getline(ifs, line))
+				if (line.size() != 1)
+					lines += line;
 		}
 	}
 }
@@ -109,15 +122,12 @@ void parse_line(const boost::filesystem::path&& path,
 		{
 			std::string match_user( match[user] );
 			std::string match_msg( match[msg] );
-			if(before_user == "") {
-				before_user = match_user;
-			}
-			else if(before_user != match_user) {
+			if (before_user != "" && before_user != match_user) {
 				datas.emplace_back(std::vector<std::string>{ before_user, dialogue, ids });
 				ids = "";
 				dialogue = "";
-				before_user = match_user;
 			}
+			before_user = match_user;
 			std::vector<std::string> word_list;
 			split_mecab(std::move(tagger), match_msg, word_list);
 			make_data(word_list, dialogue, ids, vocab);
@@ -138,18 +148,8 @@ void parse_fb(const boost::filesystem::path&& path,
 
 	const std::unique_ptr<MeCab::Tagger> tagger{ MeCab::createTagger("-Owakati") };
 
-	// 本当は，this.readlinesを呼びたい！！！！
 	std::string lines;
-	namespace fs = boost::filesystem;
-	for(const auto& e : boost::make_iterator_range(fs::directory_iterator(path), {})) {
-		if(!fs::is_directory( e )) {
-			std::ifstream ifs( path.string() + e.path().filename().string() );
-			std::string line;
-			while(getline(ifs, line))
-				if (line.size() != 1)
-					lines += line;
-		}
-	}
+	readlines(lines, std::move(path));
 
 	std::vector<std::string> users;
 	htmlparser::find_all(lines.begin(), lines.end(), users, "span", "user");
@@ -163,15 +163,12 @@ void parse_fb(const boost::filesystem::path&& path,
 	std::string before_user{ "" };
 	for (const auto& msg : msgs | boost::adaptors::indexed()) {
 		if(!regex::regex_search(msg.value(), re_urls) && msg.value() != "") {
-			if(before_user == "") {
-				before_user = users[msg.index()];
-			}
-			else if(before_user != users[msg.index()]) {
+			if (before_user != "" && before_user != users[msg.index()]) {
 				datas.emplace_back(std::vector<std::string>{ before_user, dialogue, ids });
 				ids = "";
 				dialogue = "";
-				before_user = users[msg.index()];
 			}
+			before_user = users[msg.index()];
 			std::vector<std::string> word_list;
 			split_mecab(std::move(tagger), msg.value(), word_list);
 			make_data(word_list, dialogue, ids, vocab);
