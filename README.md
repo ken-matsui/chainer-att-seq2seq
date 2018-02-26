@@ -3,7 +3,7 @@
 ## HOW TO USE
 ```
 $ git clone $(This repository's URL)
-$ cd seq2seq/
+$ cd chainer_att-seq2seq/
 
 $ mv ~/Downloads/facebook-$(USER) ./raw/facebook
 $ mkdir ./raw/line
