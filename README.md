@@ -1,5 +1,7 @@
 # chainer_att-seq2seq
 
+学習データには，Facebook messengerのトークデータとLINEのトークデータを使用した．
+
 ## HOW TO USE
 ```
 $ git clone $(This repository's URL)
@@ -8,13 +10,10 @@ $ cd chainer_att-seq2seq/
 $ mv ~/Downloads/facebook-$(USER) ./raw/facebook
 $ mkdir ./raw/line
 $ mv ~/Downloads/\[LINE\]\ Chat\ with\ *.txt ./raw/line/
-$ mkdir ./raw/corpus
-$ mv ~/Downloads/make-meidai-dialogue/sequence.txt ./raw/corpus/
 
 $ python parse.py
 Parse facebook...
 Parse line...
-Parse corpus...
 done.
 $ python train.py
 GPU: True
@@ -46,18 +45,13 @@ data = [["query data", "responce data"],
 ```
 
 ## Important
-[日本語自然会話書き起こしコーパス（旧名大会話コーパス）](http://mmsrv.ninjal.ac.jp/nucc/)を使用
-その後，parseには，[make-meidai-dialogue](https://github.com/knok/make-meidai-dialogue)を使用．
-その`sequence.txt`ファイルだけ，`raw/corpus/`に移動させて使用する．
-
-MeCabの辞書は，[mecab-ipadic-neologd](https://github.com/neologd/mecab-ipadic-neologd)を使用．
+MeCabの辞書は，[mecab-ipadic-neologd](https://github.com/neologd/mecab-ipadic-neologd)を使用しました．
+MeCab自体のインストールは，[mecab-ipadic-neologd](https://github.com/neologd/mecab-ipadic-neologd)を参考にしてください．
 
 # CPP
-mecabのインストールは，[mecab-ipadic-neologd](https://github.com/neologd/mecab-ipadic-neologd)を参考にインストールしてください．
-
 :warning: -lboost_filesystemオプションは，昔の記事だと，-lboost-filesystemとなっている場合が多いですが，-lboost_filesystemが正しいです．
 
-**Ex. compile options**
+**e.g. compile option**
 ```
 $ g++ -std=c++1z -O3 -mtune=native -march=native -I/usr/local/Cellar/boost/1.66.0 -lboost_filesystem -lboost_system `mecab-config --cflags` `mecab-config --libs` -o parse parse.cpp
 ```
