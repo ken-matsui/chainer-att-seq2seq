@@ -39,8 +39,8 @@ Interactive decode from ./result/30.npz
 
 ### Input data
 ```
-data = [["query data", "responce data"],
-	["query data", "responce data"],
+data = [["query sentence", "response sentence"],
+	["query sentence", "response sentence"],
 	[..., ...], ...]
 ```
 
