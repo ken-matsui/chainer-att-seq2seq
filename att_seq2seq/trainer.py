@@ -3,17 +3,11 @@
 import os
 import re
 import datetime
-from os.path import join, dirname
 
 import chainer.functions as F
 from chainer import optimizer, optimizers, serializers, cuda
 import numpy as np
-from dotenv import load_dotenv
-import slackweb
 
-dotenv_path = join(dirname(__file__), '../.env')
-load_dotenv(dotenv_path)
-slack = slackweb.Slack(os.environ.get("SLACK_WEBHOOK"))
 
 class Trainer(object):
 	def __init__(self, model, npz=None, flag_gpu=False):
@@ -89,7 +83,6 @@ class Trainer(object):
 			loss_data = "\tloss: {}\n".format(round(float(total_loss),2))
 			accuracy_data = "\taccuracy: {}\n".format(round(float(total_accuracy),2))
 			time_data = "\ttime: {}".format(ed-st)
-			data = epoch_data + loss_data + accuracy_data + time_data
-			slack.notify(text=data)
-			print(data)
+			text = epoch_data + loss_data + accuracy_data + time_data
+			print(text)
 			st = datetime.datetime.now()
