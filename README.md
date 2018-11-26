@@ -1,6 +1,6 @@
-# chainer_att-seq2seq
+# chainer-att-seq2seq
 
-学習データには，Facebook messengerのトークデータとLINEのトークデータを使用した．
+Use talk data of Facebook messenger and LINE for training data.
 
 ## HOW TO USE
 ```
